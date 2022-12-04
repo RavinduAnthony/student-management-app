@@ -5,7 +5,7 @@ export function AlertBox(props) {
   
   return (
     <div>
-      <Alert color={props.color}isOpen={isVisible} toggle={()=>{setIsVisible(false)}}>
+      <Alert color={props.color} isOpen={isVisible} toggle={() =>{setIsVisible(false)}}>
         {props.message}
       </Alert>
     </div>

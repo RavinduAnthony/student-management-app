@@ -122,3 +122,9 @@ code {
   position: fixed;
   left: 15%;
 }
+
+.alertBox{
+  position:fixed;
+   top:10px;
+   right:550px;
+}

@@ -22,6 +22,7 @@ class ClassForm extends Component {
 
         this.saveClass = this.saveClass.bind(this);
         this.GetClassById = this.GetClassById.bind(this);
+        this.DeleteClassRoom = this.DeleteClassRoom.bind(this)
     }
 
     componentDidMount() {
@@ -39,8 +40,8 @@ class ClassForm extends Component {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
                         this.setState({ className: response.data[i].classRoomName })
-                        this.setState({ isUpdating: true })
                         this.setState({ classID: response.data[i].classRoomId })
+                        this.setState({ isUpdating: true })
                     }
                 }
                 else {
@@ -51,23 +52,11 @@ class ClassForm extends Component {
 
             })
     }
-    saveClass() {
-        if (this.state.isUpdating) {
-            axios.put(`https://localhost:44319/ClassRoom/UpdateClassRoom`,{
-                classRoomId:this.state.classID,
-                classRoomName: this.state.className
-            }).then(response => {
+    DeleteClassRoom(classRoomId) {
+        axios.post(`https://localhost:44319/ClassRoom/DeleteClassRoom?ClassId=` + classRoomId)
+            .then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
-                    this.setState({ classRooms: [] })
-
-                    axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
-                        .then(response => {
-                            for (let i = 0; i < response.data.length; i++) {
-                                this.state.classRooms.push(response.data[i])
-                                this.setState({ classRooms: this.state.classRooms })
-                            }
-                        })
                 }
                 else {
                     this.setState({ alertClassName: "danger" })
@@ -75,35 +64,47 @@ class ClassForm extends Component {
                 this.setState({ isShowAlert: true })
                 this.setState({ alertMessage: response.data })
             })
+    }
+    saveClass() {
+        if (this.state.isUpdating) {
+            axios.put(`https://localhost:44319/ClassRoom/UpdateClassRoom`, {
+                classRoomId: this.state.classID,
+                classRoomName: this.state.className
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({ alertClassName: "primary" })
+                }
+                else {
+                    this.setState({ alertClassName: "danger" })
+                }
+                this.setState({ isShowAlert: true })
+                this.setState({ alertMessage: response.data })
+                this.state.classRooms.length = 0
+                this.componentDidMount()
+            })
+
         }
         else {
             axios.post(`https://localhost:44319/ClassRoom/SaveClassRoom`, {
                 classRoomName: this.state.className
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({ alertClassName: "primary" })
+                    this.setState({ classRooms: [] })
+                }
+                else {
+                    this.setState({ alertClassName: "danger" })
+                }
+                this.setState({ isShowAlert: true })
+                this.setState({ alertMessage: response.data })
+                this.state.classRooms.length = 0
+                this.componentDidMount()
+
             })
-                .then(response => {
-                    if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
-                        this.setState({ classRooms: [] })
-
-                        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
-                            .then(response => {
-                                for (let i = 0; i < response.data.length; i++) {
-                                    this.state.classRooms.push(response.data[i])
-                                    this.setState({ classRooms: this.state.classRooms })
-                                }
-                            })
-                    }
-                    else {
-                        this.setState({ alertClassName: "danger" })
-                    }
-                    this.setState({ isShowAlert: true })
-                    this.setState({ alertMessage: response.data })
-
-                })
         }
-
+        this.setState({ className: "" })
+        this.setState({ isShowAlert: false })
     }
-
     render() {
         return (
             <div>
@@ -145,16 +146,21 @@ class ClassForm extends Component {
                     </Col>
                 </Row>
 
-                <div>
+                <div className="alertBox" >
                     {this.state.isShowAlert ?
-                        (<AlertBox status={this.state.isShowAlert} message={this.state.alertMessage} color={this.state.alertClassName} />)
+                        (<AlertBox status={this.state.isShowAlert}
+                            message={this.state.alertMessage}
+                            color={this.state.alertClassName}
+                        />)
                         :
                         null
                     }
                 </div>
                 <hr />
                 <div className="GridData" >
-                    <ClassGrid classData={this.state.classRooms} method={this.GetClassById} />
+                    <ClassGrid classData={this.state.classRooms}
+                        updateMothod={this.GetClassById}
+                        DeleteMethod={this.DeleteClassRoom} />
                 </div>
 
 
