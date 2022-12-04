@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { StudentForm } from "./Pages/StudentForm";
+import { NavBar } from "./Pages/NavBar";
+import { TeacherForm } from "./Pages/TeacherForm";
+import ClassForm from "./Pages/ClassForm";
+import { SubjectForm } from "./Pages/SubjectForm";
+import { StudentDetails } from "./Pages/StudentDetails";
+class App extends Component {
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    render() {
+        return (
+            <div>
+
+                <BrowserRouter>
+                    <NavBar />
+                    <Routes>
+                        <Route path="/" element={<NavBar />} />
+                        <Route index element={<StudentForm />} />
+                        <Route path="/teacher" element={<TeacherForm />} />
+                        <Route path="/class" element={<ClassForm />} />
+                        <Route path="/subject" element={<SubjectForm />} />
+                        <Route path="/studentDetails" element={<StudentDetails />} />
+                    </Routes>
+                </BrowserRouter>
+            </div>
+        )
+    }
 }
 
-export default App;
+export default App

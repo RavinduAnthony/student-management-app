@@ -11,3 +11,114 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/*Alert box*/
+.alert {
+  position: relative;
+  padding: 1rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  color: #084298;
+  background-color: #cfe2ff;
+  border-color: #b6d4fe;
+  width: 200px;
+}
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* When moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
+}
+.hide {
+  display: none;
+}
+
+.form{
+  position: fixed;
+  left: 15%;
+}
+
+.formFields{
+  display: flex;
+  width: 800px;
+}
+
+.formFields > div{
+  padding-right: 20px;
+  width: 180%;
+}
+.customSelect{
+  width: 150px;
+  height: 40px;
+  border-radius: 5px;
+}
+.customSelect-details{
+  width: 250px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+.customSelect-allocate{
+  width: 250px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.selectAllocate-div{
+  padding: 30px;
+  display: flex;
+}
+
+.btnAlloc{
+  width: 90px;
+  height: 35px;
+  background-color: darkseagreen;
+  margin-left: 30px;
+  border-radius: 6px;
+  border-color: transparent;
+}
+
+.btnDAlloc{
+  width: 90px;
+  height: 35px;
+  background-color: coral;
+  margin-left: 30px;
+  border-radius: 6px;
+  border-color: transparent;
+}
+
+.btnUpdate{
+  width: 70px;
+  height: 40px;
+  background-color: rgb(220, 74, 103);
+  margin-left: 30px;
+  border-radius: 6px;
+  border-color: black;
+}
+
+.allocHeader{
+  padding-left: 30px;
+  padding-top: 15px;
+}
+
+.btnGroup{
+  padding: 15px;
+  display: flex;
+}
+
+.btnGroup > div{
+  padding-right: 20px;
+}
+.GridData{
+  position: fixed;
+  left: 15%;
+}
