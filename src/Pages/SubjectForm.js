@@ -3,7 +3,7 @@ import { Component } from "react"
 import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
-import { AlertBox } from "./AlertBox";
+import AlertBox from "./AlertBox";
 import { SubjectGrid } from "./SubjectGrid"
 
 export class SubjectForm extends Component {

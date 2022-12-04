@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AlertBox } from "./AlertBox";
+import AlertBox from "./AlertBox";
 import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
@@ -13,27 +13,52 @@ class ClassForm extends Component {
         this.state = {
             classID: 0,
             className: "",
+            gridKey: 1,
             classRooms: [],
             isShowAlert: false,
             alertMessage: "",
             alertClassName: "",
-            isUpdating: false
+            isUpdating: false,
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
         }
 
         this.saveClass = this.saveClass.bind(this);
         this.GetClassById = this.GetClassById.bind(this);
-        this.DeleteClassRoom = this.DeleteClassRoom.bind(this)
+        this.DeleteClassRoom = this.DeleteClassRoom.bind(this);
+        this.toggleAlert = this.toggleAlert.bind(this);
     }
 
     componentDidMount() {
+        this.loadClassRoomList(() => {
+            debugger;
+            this.setState({
+                gridKey: this.state.gridKey + 1
+            })
+        });
+    }
+
+    loadClassRoomList(callback) {
         axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
             .then(response => {
-                for (let i = 0; i < response.data.length; i++) {
-                    this.state.classRooms.push(response.data[i])
-                    this.setState({ classRooms: this.state.classRooms })
-                }
+                debugger;
+                this.setState({
+                    classRooms: response.data.map(item => {
+                        return {
+                            classRoomId: item.classRoomId,
+                            classRoomName: item.classRoomName
+                        }
+                    })
+                })
+
+                callback(true);
             })
     }
+
     GetClassById(classRoomId) {
         axios.get(`https://localhost:44319/ClassRoom/GetClassRoomById?ClassId=` + classRoomId)
             .then(response => {
@@ -61,10 +86,20 @@ class ClassForm extends Component {
                 else {
                     this.setState({ alertClassName: "danger" })
                 }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.classRooms.length = 0
-                this.componentDidMount()
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: response.data,
+                        color: "success",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+                this.loadClassRoomList(() => {
+                    debugger;
+                    this.setState({
+                        gridKey: this.state.gridKey + 1
+                    })
+                });
             })
     }
     saveClass() {
@@ -79,12 +114,21 @@ class ClassForm extends Component {
                 else {
                     this.setState({ alertClassName: "danger" })
                 }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.classRooms.length = 0
-                this.componentDidMount()
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: response.data,
+                        color: "success",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+                this.loadClassRoomList(() => {
+                    debugger;
+                    this.setState({
+                        gridKey: this.state.gridKey + 1
+                    })
+                });
             })
-
         }
         else {
             axios.post(`https://localhost:44319/ClassRoom/SaveClassRoom`, {
@@ -96,16 +140,38 @@ class ClassForm extends Component {
                 else {
                     this.setState({ alertClassName: "danger" })
                 }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.classRooms.length = 0
-                this.componentDidMount()
-
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: response.data,
+                        color: "success",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+                this.loadClassRoomList(() => {
+                    debugger;
+                    this.setState({
+                        gridKey: this.state.gridKey + 1
+                    })
+                });
             })
         }
         this.setState({ className: "" })
-        this.setState({ isShowAlert: false })
+        
+        
     }
+
+    toggleAlert() {
+        this.setState({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: ""
+            }
+        })
+    }
+
     render() {
         return (
             <div>
@@ -139,6 +205,16 @@ class ClassForm extends Component {
                             <Col md="8" xs="12">
                                 <Button outline color="success"
                                     onClick={() => { this.saveClass() }}
+                                // onClick={() => {
+                                //     this.setState({
+                                //         alertBoxObj: {
+                                //             status: true,
+                                //             message: "Test",
+                                //             color: "success",
+                                //             toggleAlert: this.toggleAlert
+                                //         }
+                                //     })
+                                // }}
                                 >
                                     Save
                                 </Button>
@@ -146,8 +222,10 @@ class ClassForm extends Component {
                         </Row>
                     </Col>
                 </Row>
-
                 <div className="alertBox" >
+                    <AlertBox alertBoxObj={this.state.alertBoxObj}/>
+                </div>
+                {/* <div className="alertBox" >
                     {this.state.isShowAlert ?
                         (<AlertBox status={this.state.isShowAlert}
                             message={this.state.alertMessage}
@@ -156,10 +234,12 @@ class ClassForm extends Component {
                         :
                         null
                     }
-                </div>
+                </div> */}
                 <hr />
                 <div className="GridData" >
-                    <ClassGrid classData={this.state.classRooms}
+                    <ClassGrid
+                        key={this.state.gridKey}
+                        classData={this.state.classRooms}
                         updateMothod={this.GetClassById}
                         DeleteMethod={this.DeleteClassRoom} />
                 </div>

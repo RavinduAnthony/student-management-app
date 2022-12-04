@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'reactstrap';
-export function AlertBox(props) {
-  const[isVisible, setIsVisible] = useState(props.status);
-  
+
+const AlertBox = (props) => {
+
   return (
     <div>
-      <Alert color={props.color} isOpen={isVisible} toggle={() =>{setIsVisible(false)}}>
-        {props.message}
+      <Alert color={props.alertBoxObj.color} isOpen={props.alertBoxObj.status} toggle={() => { props.alertBoxObj.toggleAlert(); }}>
+        {props.alertBoxObj.message}
       </Alert>
     </div>
   )
 }
+
+export default AlertBox;
