@@ -63,6 +63,8 @@ class ClassForm extends Component {
                 }
                 this.setState({ isShowAlert: true })
                 this.setState({ alertMessage: response.data })
+                this.state.classRooms.length = 0
+                this.componentDidMount()
             })
     }
     saveClass() {
@@ -90,7 +92,6 @@ class ClassForm extends Component {
             }).then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
-                    this.setState({ classRooms: [] })
                 }
                 else {
                     this.setState({ alertClassName: "danger" })
