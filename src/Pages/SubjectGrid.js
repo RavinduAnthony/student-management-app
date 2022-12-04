@@ -3,7 +3,7 @@ import { Button, Table } from 'reactstrap';export function SubjectGrid(props){
     const[subjects, setSubject] = useState(props.subjectData);
     return(
         <div>
-           <Table borderless>
+           <Table bordered>
                 <thead>
                     <tr>Subject</tr>
                 </thead>

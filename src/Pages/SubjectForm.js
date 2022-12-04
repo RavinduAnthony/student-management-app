@@ -16,19 +16,41 @@ export class SubjectForm extends Component {
             isShowAlert: false,
             alertMessage: "",
             alertClassName: "",
-            isUpdating: false
+            isUpdating: false,
+            gridKey: 1,
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
         }
         this.SaveSubject = this.SaveSubject.bind(this)
         this.GetSubjectById = this.GetSubjectById.bind(this)
         this.DeleteSubject = this.DeleteSubject.bind(this)
+        this.toggleAlert = this.toggleAlert.bind(this)
     }
     componentDidMount() {
+        this.LoadSubjectList(() => {
+            debugger;
+            this.setState({
+                gridKey: this.state.gridKey + 1
+            })
+        });
+    }
+    LoadSubjectList(callback) {
         axios.get(`https://localhost:44319/Subject/GetAllSubjects`)
             .then(response => {
-                for (let i = 0; i < response.data.length; i++) {
-                    this.state.subjects.push(response.data[i])
-                    this.setState({ subjects: this.state.subjects })
-                }
+                this.setState({
+                    subjects: response.data.map(item => {
+                        return {
+                            subjectId: item.subjectId,
+                            subjectName: item.subjectName
+                        }
+                    })
+                })
+
+                callback(true);
             })
     }
     GetSubjectById(sbjId) {
@@ -64,40 +86,80 @@ export class SubjectForm extends Component {
             })
     }
     SaveSubject() {
-        if (this.state.isUpdating) {
-            axios.put(`https://localhost:44319/Subject/UpdateSubject`, {
-                subjectId: this.state.subjectID,
-                subjectName: this.state.subjectName
-            }).then(response => {
-                if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
+        if (this.state.subjectName.length === 0) {
+            this.setState({
+                alertBoxObj: {
+                    status: true,
+                    message: "Please provide All the Fields!!",
+                    color: "success",
+                    toggleAlert: this.toggleAlert
                 }
-                else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.subjects.length = 0;
-                this.componentDidMount()
             })
         } else {
-            axios.post(`https://localhost:44319/Subject/SaveSubject`, {
-                subjectName: this.state.subjectName
-            }).then(response => {
-                if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
-                }
-                else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.subjects.length = 0;
-                this.componentDidMount()
-            })
+            if (this.state.isUpdating) {
+                axios.put(`https://localhost:44319/Subject/UpdateSubject`, {
+                    subjectId: this.state.subjectID,
+                    subjectName: this.state.subjectName
+                }).then(response => {
+                    if (response.status === 200) {
+                        this.setState({ alertClassName: "primary" })
+                    }
+                    else {
+                        this.setState({ alertClassName: "danger" })
+                    }
+                    this.setState({isUpdating: false})
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "success",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                    this.LoadSubjectList(() => {
+                        debugger;
+                        this.setState({
+                            gridKey: this.state.gridKey + 1
+                        })
+                    });
+                })
+            } else {
+                axios.post(`https://localhost:44319/Subject/SaveSubject`, {
+                    subjectName: this.state.subjectName
+                }).then(response => {
+                    if (response.status === 200) {
+                        this.setState({ alertClassName: "primary" })
+                    }
+                    else {
+                        this.setState({ alertClassName: "danger" })
+                    }
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "success",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                    this.LoadSubjectList(() => {
+                        this.setState({
+                            gridKey: this.state.gridKey + 1
+                        })
+                    });
+                })
+            }
         }
-        this.setState({subjectName: ""})
-        this.setState({ isShowAlert: false })
+        this.setState({ subjectName: "" })
+    }
+    toggleAlert() {
+        this.setState({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: ""
+            }
+        })
     }
     render() {
         return (
@@ -139,18 +201,13 @@ export class SubjectForm extends Component {
                     </Col>
                 </Row>
                 <div className="alertBox" >
-                    {this.state.isShowAlert ?
-                        (<AlertBox status={this.state.isShowAlert}
-                            message={this.state.alertMessage}
-                            color={this.state.alertClassName}
-                        />)
-                        :
-                        null
-                    }
+                    <AlertBox alertBoxObj={this.state.alertBoxObj} />
                 </div>
                 <hr />
                 <div className="GridData" >
-                    <SubjectGrid subjectData={this.state.subjects}
+                    <SubjectGrid
+                        key={this.state.gridKey}
+                        subjectData={this.state.subjects}
                         updateMothod={this.GetSubjectById}
                         DeleteMethod={this.DeleteSubject}
                     />

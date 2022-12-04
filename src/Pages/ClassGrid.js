@@ -4,7 +4,7 @@ export function ClassGrid(props){
     const[classRooms, setClasRooms] = useState(props.classData)
     return(
         <div>
-            <Table borderless>
+            <Table bordered>
                 <thead>
                     <tr>Class Room</tr>
                 </thead>
