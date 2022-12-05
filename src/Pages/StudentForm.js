@@ -1,6 +1,11 @@
 import { Component } from "react";
 import { StudentGrid } from "./StudentGrid";
+import AlertBox from "./AlertBox";
+import {
+    Row, Col, Label, Button, Input, Dropdown, DropdownItem,DropdownMenu,DropdownToggle
+} from 'reactstrap';
 import axios, { Axios } from "axios";
+import { DatePicker } from "reactstrap-date-picker";
 
 export class StudentForm extends Component {
     constructor(props) {
@@ -11,8 +16,6 @@ export class StudentForm extends Component {
             studentList: '',
             classList: []
         }
-        // this.handleChange = this.handleChange.bind(this)
-        // this.handleSubmit = this.handleSubmit.bind(this)
     }
 
     handleChange(event) {
@@ -20,84 +23,164 @@ export class StudentForm extends Component {
             [event.target.name]: event.target.value
         })
     }
-    handleSubmit(event) {
-        console.log(this.state.firstName + this.state.lastName)
-    }
-    componentDidMount() {
-        axios.get(`https://localhost:44319/student/GetAllStudents`)
-            .then(response => {
-                this.setState({
-                    studentList: response.data
-                })
-                console.log(this.state.studentList)
-            })
-        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
-            .then(response => {
-                this.state.classList.push(response.data)
-                console.log("Class Rooms: ", this.state.classList)
-            })
-    }
     render() {
         return (
-            <div className="form" >
-                <form onSubmit={this.handleSubmit} >
-                    <div className="formFields" >
-                        <div className="mb-3">
-                            <label className="form-label">First Name</label>
-                            <input type="text" className="form-control" id="firstName"
-                                value={this.state.firstName} name="firstName" onChange={this.handleChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Last Name</label>
-                            <input type="text" className="form-control" id="lastName"
-                                value={this.state.lastName} name="lastName" onChange={this.handleChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Contact Person</label>
-                            <input type="text" className="form-control" id="contactPerson"
-                                value={this.state.contactPerson} name="contactPerson" onChange={this.handleChange} />
-                        </div>
-                    </div>
-                    <div className="formFields" >
-                        <div className="mb-3">
-                            <label className="form-label">Contact Number</label>
-                            <input type="text" className="form-control" id="contactNumber"
-                                value={this.state.contactNumber} name="contactNumber" onChange={this.handleChange} />
-                        </div>
-                        <div class="mb-3">
-                            <label className="form-label">Email Address</label>
-                            <input type="email" className="form-control" id="email"
-                                value={this.state.email} name="email" onChange={this.handleChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Age</label>
-                            <input type="Number" className="form-control" id="age"
-                                value={this.state.age} name="age" onChange={this.handleChange} />
-                        </div>
-                    </div>
-                    <div className="formFields" >
-                        <div className="mb-3">
-                            <label className="form-label">Date Of Birth</label>
-                            <input type="Date" className="form-control" id="dob"
-                                value={this.state.dob} name="dob" onChange={this.handleChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Classes</label>
-                            <br />
-                            <select id="classDropdown" className="customSelect" >
-                                <option value="none" selected disabled hidden> --Select Class --</option>
-                            </select>
-                        </div>
+            <div>
+                <hr />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>First Name</Label>
 
+                            </Col>
 
-                    </div>
-                    <div className="formFields">
-                        <div className="mb-3" >
-                            <button className="btn btn-primary">Submit</button>
-                        </div>
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.firstName}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Last Name</Label>
 
-                    </div>
-                </form>
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.lastName}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Contact Person</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.contactPerson}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Contact Number</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.contactNumber}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Email Address</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.email}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Date of Birth</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    type="date"
+                                    value={this.state.email}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Age</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Input
+                                    value={this.state.age}
+                                    onChange={(e) => { this.setState({ className: e.target.value }) }}
+                                    disabled
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <Col md="6" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Class</Label>
+
+                            </Col>
+
+                            <Col md="8" xs="12">
+                                <Dropdown>
+                                    <DropdownToggle caret>
+                                        Dropdown
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem header>Header</DropdownItem>
+                                        <DropdownItem disabled>Action</DropdownItem>
+                                        <DropdownItem>Another Action</DropdownItem>
+                                        <DropdownItem divider />
+                                        <DropdownItem>Another Action</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <hr/>
                 <div>
                     <StudentGrid />
                 </div>
