@@ -15,6 +15,7 @@ export class StudentForm extends Component {
             studentId: 0, 
             firstName: '', 
             lastName: '', contactPerson: '', contactNumber: '', email: '', age: '', dob: '', classId: 0,
+            initialKey:0,
             currentDate: new Date(),
             studentList: [],
             classList: [],
@@ -114,7 +115,7 @@ export class StudentForm extends Component {
                         this.setState({ contactPerson: response.data[i].contactPerson })
                         this.setState({ contactNumber: response.data[i].contactNo })
                         this.setState({ email: response.data[i].email })
-                        this.setState({ dob: response.data[i].dateOfBirth })
+                        this.setState({ dob: response.data[i].dateOfBirth, classId: parseInt(response.data[i].st_classRoomId), initialKey: this.state.initialKey + 1 })
                         this.setState({ isUpdating: true })
                     }
                 }
@@ -173,7 +174,7 @@ export class StudentForm extends Component {
                         contactNo: this.state.contactNumber,
                         email: this.state.email,
                         dateOfBirth: this.state.dob,
-                        st_classRoomId: this.state.classId
+                        st_classRoomId: parseInt(this.state.classId) 
                     }).then(response => {
                         if (response.status === 200) {
                             this.setState({ alertClassName: "primary" })
@@ -434,7 +435,7 @@ export class StudentForm extends Component {
                             <Col md="8" xs="12">
                                 <select className="customSelect" onChange={this.HandleChange}
                                     name="classId" value={this.state.classId}>
-                                    <option key={0} value="none"> -- Select Class -- </option>
+                                    <option key={this.state.initialKey} value="none"> -- Select Class -- </option>
                                     {this.state.classList.map(item =>
                                         <option key={item.classRoomId} value={item.classRoomId}>{item.classRoomName}</option>
                                     )}

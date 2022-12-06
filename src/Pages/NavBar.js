@@ -36,6 +36,11 @@ export function NavBar(props){
                                     </Link>
                                 </li>
                                 <li className="nav-item">
+                                    <Link style={{textDecoration: 'none'}} to="/allocateSubject">
+                                        <a className="nav-link" >Allocate Subject</a>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
                                     <Link style={{textDecoration: 'none'}} to="/studentDetails">
                                         <a className="nav-link" >Student Details</a>
                                     </Link>

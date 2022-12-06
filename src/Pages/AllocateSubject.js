@@ -1,19 +1,19 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import { Row, Col, Label, Button } from "reactstrap";
-import AllocatedClassGrid from "./AllocatedClassGrid";
+import AllocateSubjectGrid from "./AllocateSubjectGrid";
 import AlertBox from "./AlertBox";
-const AllocateClass = () => {
+const AllocateSubject = () => {
 
     const [teachers, setTeachers] = useState([])
     const [teachersKey, setTeachersKey] = useState(0)
-    const [classRooms, setClassRooms] = useState([])
     const [teacherId, setTeacherID] = useState(0)
-    const [classId, setClassId] = useState(0);
+    const [subjects, setSubjects] = useState([])
+    const [subjectId, setSubjectId] = useState(0)
     const [gridKey, setGridKey] = useState(1);
-    const [allocClasses, setAlocClasses] = useState([])
+    const [allocSubjects, setAllocSubjects] = useState([])
     const [initialTeacher, setInitialTeacher] = useState(0)
-    const [initialClass, setInitialClass] = useState(0)
+    const [initialSubject, setInitialSubject] = useState(0)
     const [alertBoxObj, setAlertBoxObj] = useState({
         status: false,
         message: "",
@@ -31,7 +31,8 @@ const AllocateClass = () => {
             }
         })
     }
-    const getInitialData = () => {
+
+    const GetInitialData = () => {
         axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
             .then(response => {
                 setTeachers(
@@ -46,13 +47,13 @@ const AllocateClass = () => {
                     })
                 )
             })
-        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
+        axios.get(`https://localhost:44319/Subject/GetAllSubjects`)
             .then(response => {
-                setClassRooms(
+                setSubjects(
                     response.data.map(item => {
                         return {
-                            classRoomId: item.classRoomId,
-                            classRoomName: item.classRoomName
+                            subjectId: item.subjectId,
+                            subjectName: item.subjectName
                         }
                     })
                 )
@@ -60,18 +61,18 @@ const AllocateClass = () => {
     }
 
     useEffect(() => {
-        getInitialData();
+        GetInitialData();
     }, [])
 
     useEffect(() => {
         setTeachersKey(teachersKey + 1);
     }, [teachers])
 
-    const AllocateClass = () => {
+    const AlocateSubject = () => {
         var teacher = parseInt(teacherId)
-        axios.post(`https://localhost:44319/ClassAllocation/AllocateClass`, {
+        axios.post(`https://localhost:44319/SubjectAllocation/AllocateSubject`, {
             teacherId: parseInt(teacherId),
-            classId: parseInt(classId)
+            subjectID: parseInt(subjectId)
         }).then(response => {
             setAlertBoxObj({
                 status: true,
@@ -79,47 +80,47 @@ const AllocateClass = () => {
                 color: "success",
                 toggleAlert: toggleAlert
             })
-            GetallocatedClassList(teacher)
+            GetAllocatedSubjectList(teacher)
+        })
+    }
+
+    const DeAllocateSubject = (allocatedId, teacherId) => {
+        axios.post(`https://localhost:44319/SubjectAllocation/DeAllocateSubject?allocatedSubjectId=`+allocatedId)
+        .then(response => {
+            setAlertBoxObj({
+                status: true,
+                message: response.data,
+                color: "success",
+                toggleAlert: toggleAlert
+            })
+            GetAllocatedSubjectList(teacherId)
         })
     }
     const HandleTeacherChange = (e) => {
         setInitialTeacher(initialTeacher + 1)
         setTeacherID(e.target.value)
-        GetallocatedClassList(e.target.value)
+        GetAllocatedSubjectList(e.target.value)
     }
 
-    const HandleClassChange = (e) => {
-        setInitialClass(initialClass + 1)
-        setClassId(e.target.value)
+    const HandleSubjectChange = (e) => {
+        setInitialSubject(initialSubject + 1)
+        setSubjectId(e.target.value)
     }
 
-    const GetallocatedClassList = (teacherId) => {
-        axios.get(`https://localhost:44319/ClassAllocation/GetAllocatedClassById?TeacherId=` + teacherId)
+    const GetAllocatedSubjectList = (teacherId) => {
+        axios.get(`https://localhost:44319/SubjectAllocation/GetAllocatedSubjectsById?TeacherId=` + teacherId)
             .then(response => {
-                setAlocClasses(
+                setAllocSubjects(
                     response.data.map(item => {
                         return {
-                            allocatedClassId: item.allocatedClassId,
-                            classRoom: item.classRoom,
+                            allocatedId: item.allocatedId,
+                            subjectName: item.subjectName,
                             teacherName: item.teacherName,
                             teacherId: item.teacherId
                         }
                     })
                 )
                 setGridKey(gridKey + 1)
-            })
-    }
-
-    const DeAllocateClass = (allocationId, teacherId) => {
-        axios.post(`https://localhost:44319/ClassAllocation/DeAllocateClass?allocatedClassId=` + allocationId)
-            .then(response => {
-                setAlertBoxObj({
-                    status: true,
-                    message: response.data,
-                    color: "success",
-                    toggleAlert: toggleAlert
-                })
-                GetallocatedClassList(teacherId)
             })
     }
     return (
@@ -150,15 +151,17 @@ const AllocateClass = () => {
                 <Col md="6" xs="12">
                     <Row>
                         <Col md="4" xs="12">
-                            <Label>Class Room</Label>
+                            <Label>Subject</Label>
 
                         </Col>
 
                         <Col md="8" xs="12">
-                            <select className="customSelect" value={classRooms.classRoomId} onChange={HandleClassChange} >
-                                <option key={initialClass} >-- Select Class --</option>
-                                {classRooms.map(item =>
-                                    <option key={item.classRoomId} value={item.classRoomId} >{item.classRoomName}</option>
+                            <select className="customSelect" value={subjects.subjectId} onChange={HandleSubjectChange} >
+                                <option key={initialSubject} >-- Select Subject --</option>
+                                {subjects.map(item =>
+                                    <option key={item.subjectId} value={item.subjectId}>
+                                        {item.subjectName}
+                                    </option>
                                 )}
                             </select>
                         </Col>
@@ -175,7 +178,7 @@ const AllocateClass = () => {
 
                         <Col md="8" xs="12">
                             <Button outline color="success"
-                                onClick={() => { AllocateClass() }}
+                                onClick={() => { AlocateSubject() }}
                             >
                                 Allocate
                             </Button>
@@ -190,13 +193,13 @@ const AllocateClass = () => {
                 </div>
                 : null
             }
-            <AllocatedClassGrid
+            <AllocateSubjectGrid
                 key={gridKey}
-                allocClassData={allocClasses}
-                deAllocateClass={DeAllocateClass}
+                allocSubjectData={allocSubjects}
+                DeAllocateSubject={DeAllocateSubject}
             />
         </div>
     )
 }
 
-export default AllocateClass;
+export default AllocateSubject;

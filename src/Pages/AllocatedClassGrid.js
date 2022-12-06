@@ -13,7 +13,7 @@ const AllocatedClassGrid = (props) =>{
                             <td>{cls.classRoom}</td>
                             <td>
                                 <Button outline color="danger" id={cls.allocatedClassId} 
-                                    onClick = {() =>{props.deAllocateClass(cls.allocatedClassId)}}> 
+                                    onClick = {() =>{props.deAllocateClass(cls.allocatedClassId,cls.teacherId)}}> 
                                     DeAllocate
                                 </Button>
                             </td>

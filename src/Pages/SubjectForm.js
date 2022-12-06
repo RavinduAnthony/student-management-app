@@ -86,6 +86,13 @@ export class SubjectForm extends Component {
             })
     }
     SaveSubject() {
+        const subjectAvailability = this.state.subjects.some(item => {
+            if (item.subjectName.toLowerCase() === this.state.subjectName.toLowerCase()) {
+                return true;
+            } else {
+                return false;
+            }
+         })
         if (this.state.subjectName.length === 0) {
             this.setState({
                 alertBoxObj: {
@@ -107,7 +114,7 @@ export class SubjectForm extends Component {
                     else {
                         this.setState({ alertClassName: "danger" })
                     }
-                    this.setState({isUpdating: false})
+                    this.setState({ isUpdating: false })
                     this.setState({
                         alertBoxObj: {
                             status: true,
@@ -124,29 +131,42 @@ export class SubjectForm extends Component {
                     });
                 })
             } else {
-                axios.post(`https://localhost:44319/Subject/SaveSubject`, {
-                    subjectName: this.state.subjectName
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
-                    }
-                    else {
-                        this.setState({ alertClassName: "danger" })
-                    }
+
+                if (subjectAvailability) {
                     this.setState({
                         alertBoxObj: {
                             status: true,
-                            message: response.data,
+                            message: "Subject already exists!",
                             color: "success",
                             toggleAlert: this.toggleAlert
                         }
                     })
-                    this.LoadSubjectList(() => {
+                } else {
+                    axios.post(`https://localhost:44319/Subject/SaveSubject`, {
+                        subjectName: this.state.subjectName
+                    }).then(response => {
+                        if (response.status === 200) {
+                            this.setState({ alertClassName: "primary" })
+                        }
+                        else {
+                            this.setState({ alertClassName: "danger" })
+                        }
                         this.setState({
-                            gridKey: this.state.gridKey + 1
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "success",
+                                toggleAlert: this.toggleAlert
+                            }
                         })
-                    });
-                })
+                        this.LoadSubjectList(() => {
+                            this.setState({
+                                gridKey: this.state.gridKey + 1
+                            })
+                        });
+                    })
+                }
+
             }
         }
         this.setState({ subjectName: "" })
