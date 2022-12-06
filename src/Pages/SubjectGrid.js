@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Table } from 'reactstrap';export function SubjectGrid(props){
+import { Button, Table } from 'reactstrap';
+export function SubjectGrid(props){
     const[subjects, setSubject] = useState(props.subjectData);
     return(
         <div>
