@@ -5,7 +5,12 @@ import AllocatedClassGrid from "./AllocatedClassGrid";
 const AllocateClass = () => {
 
     const [teachers, setTeachers] = useState([])
+    const [teachersKey, setTeachersKey] = useState(0)
     const [classRooms, setClassRooms] = useState([])
+    const [teacherId, setTeacherID] = useState(0)
+    const [classId, setClassId] = useState(0);
+    const [gridKey, setGridKey] = useState(1);
+    const [allocClasses, setAlocClasses] = useState([])
 
     const getInitialData = () => {
         axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
@@ -40,8 +45,59 @@ const AllocateClass = () => {
         getInitialData();
     }, [])
 
+    useEffect(() => {
+        setTeachersKey(teachersKey + 1);
+    }, [teachers])
+
     const AllocateClass = () => {
-        console.log(classRooms)
+        var teacher = parseInt(teacherId)
+        axios.post(`https://localhost:44319/ClassAllocation/AllocateClass`, {
+            teacherId: parseInt(teacherId),
+            classId: parseInt(classId)
+        }).then(response => {
+            if (response.status === 200) {
+                alert("Allocated")
+            } else {
+                alert("DeAllocated")
+            }
+            GetallocatedClassList(teacher)
+        })
+    }
+    const HandleTeacherChange = (e) => {
+        setTeacherID(e.target.value)
+        GetallocatedClassList(e.target.value)
+    }
+
+    const HandleClassChange = (e) => {
+        setClassId(e.target.value)
+    }
+
+    const GetallocatedClassList = (teacherId) => {
+        axios.get(`https://localhost:44319/ClassAllocation/GetAllocatedClassById?TeacherId=` + teacherId)
+            .then(response => {
+                setAlocClasses(
+                    response.data.map(item => {
+                        return {
+                            allocatedClassId: item.allocatedClassId,
+                            classRoom: item.classRoom,
+                            teacherName: item.teacherName
+                        }
+                    })
+                )
+                setGridKey(gridKey + 1)
+            })
+    }
+
+    const DeAllocateClass = (teacherId) => {
+        axios.post(`https://localhost:44319/ClassAllocation/DeAllocateClass?allocatedClassId=` + teacherId)
+            .then(response => {
+                if (response.status === 200) {
+                    alert("DeAllocated")
+                } else {
+                    alert("Failed!")
+                }
+                GetallocatedClassList(teacherId)
+            })
     }
     return (
         <div>
@@ -54,9 +110,11 @@ const AllocateClass = () => {
                         </Col>
 
                         <Col md="8" xs="12">
-                            <select className="customSelect">
+                            <select className="customSelect" value={teachers.teacherId} onChange={HandleTeacherChange} >
                                 {teachers.map(item =>
-                                    <option key={item.teacherId} >{item.teacherFirstName + " " + item.teacherLastName}</option>
+                                    <option key={item.teacherId} value={item.teacherId} >
+                                        {item.teacherFirstName + " " + item.teacherLastName}
+                                    </option>
                                 )}
                             </select>
                         </Col>
@@ -73,10 +131,10 @@ const AllocateClass = () => {
                         </Col>
 
                         <Col md="8" xs="12">
-                            <select className="customSelect">
-                                {classRooms.map(item => 
-                                    <option key={item.classRoomId} >{item.classRoomName}</option>
-                                    )}
+                            <select className="customSelect" value={classRooms.classRoomId} onChange={HandleClassChange} >
+                                {classRooms.map(item =>
+                                    <option key={item.classRoomId} value={item.classRoomId} >{item.classRoomName}</option>
+                                )}
                             </select>
                         </Col>
                     </Row>
@@ -101,7 +159,11 @@ const AllocateClass = () => {
                 </Col>
             </Row>
             <hr />
-            <AllocatedClassGrid />
+            <AllocatedClassGrid
+                key={gridKey}
+                allocClassData={allocClasses}
+                deAllocateClass={DeAllocateClass}
+            />
         </div>
     )
 }

@@ -1,6 +1,8 @@
 import { Component } from "react";
 import { StudentGrid } from "./StudentGrid";
 import AlertBox from "./AlertBox";
+import validator from 'validator';
+import isEmail from 'validator/lib/isEmail';
 import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
@@ -10,7 +12,9 @@ export class StudentForm extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            studentId: 0, firstName: '', lastName: '', contactPerson: '', contactNumber: '', email: '', age: '', dob: '', classId: 0,
+            studentId: 0, 
+            firstName: '', 
+            lastName: '', contactPerson: '', contactNumber: '', email: '', age: '', dob: '', classId: 0,
             currentDate: new Date(),
             studentList: [],
             classList: [],
@@ -122,92 +126,142 @@ export class StudentForm extends Component {
             })
     }
     SaveStudent() {
-        if (this.state.isUpdating) {
-            try {
-                axios.put(`https://localhost:44319/Student/UpdateStudent`, {
-                    studentId:this.state.studentId,
-                    firstName: this.state.firstName,
-                    lastName: this.state.lastName,
-                    contactPerson: this.state.contactPerson,
-                    contactNo: this.state.contactNumber,
-                    email: this.state.email,
-                    dateOfBirth: this.state.dob,
-                    st_classRoomId: this.state.classId
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
-                    }
-                    else {
+        const studentAvailability = this.state.studentList.some(std => {
+            if (std.email === this.state.email || std.contactNumber === this.state.contactNumber) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+        if (this.state.firstName.length === 0 || this.state.lastName.length === 0 || this.state.contactNumber.length === 0
+            || this.state.contactPerson.length === 0 || this.state.email.length === 0 || this.state.dob.length === 0
+            || this.state.classId === 0) {
+            this.setState({
+                alertBoxObj: {
+                    status: true,
+                    message: "Please provide All the Fields!!",
+                    color: "success",
+                    toggleAlert: this.toggleAlert
+                }
+            })
+        } else if (this.state.contactNumber.length > 10 || this.state.contactNumber.length < 10) {
+            this.setState({
+                alertBoxObj: {
+                    status: true,
+                    message: "Please provide a valid Phone Number!!",
+                    color: "success",
+                    toggleAlert: this.toggleAlert
+                }
+            })
+        } else if (!validator.isEmail(this.state.email)) {
+            this.setState({
+                alertBoxObj: {
+                    status: true,
+                    message: "Please provide a valid Email!!",
+                    color: "success",
+                    toggleAlert: this.toggleAlert
+                }
+            })
+        } else {
+            if (this.state.isUpdating) {
+                try {
+                    axios.put(`https://localhost:44319/Student/UpdateStudent`, {
+                        studentId: this.state.studentId,
+                        firstName: this.state.firstName,
+                        lastName: this.state.lastName,
+                        contactPerson: this.state.contactPerson,
+                        contactNo: this.state.contactNumber,
+                        email: this.state.email,
+                        dateOfBirth: this.state.dob,
+                        st_classRoomId: this.state.classId
+                    }).then(response => {
+                        if (response.status === 200) {
+                            this.setState({ alertClassName: "primary" })
+                        }
+                        else {
+                            this.setState({
+                                alertBoxObj: {
+                                    status: true,
+                                    message: response.data,
+                                    color: "danger",
+                                    toggleAlert: this.toggleAlert
+                                }
+                            })
+                        }
+                        this.setState({ isUpdating: false })
                         this.setState({
                             alertBoxObj: {
                                 status: true,
                                 message: response.data,
-                                color: "danger",
+                                color: "success",
                                 toggleAlert: this.toggleAlert
                             }
                         })
-                    }
-                    this.setState({ isUpdating: false })
+                        this.LoadStudentList(() => {
+                            debugger;
+                            this.setState({
+                                gridKey: this.state.gridKey + 1
+                            })
+                        });
+                    })
+                } catch (error) {
+                    alert(error)
+                }
+
+            } else {
+                if (studentAvailability) {
                     this.setState({
                         alertBoxObj: {
                             status: true,
-                            message: response.data,
+                            message: "Student already Exists!!",
                             color: "success",
                             toggleAlert: this.toggleAlert
                         }
                     })
-                    this.LoadStudentList(() => {
-                        debugger;
+                } else {
+                    axios.post(`https://localhost:44319/Student/SaveStudent`, {
+                        firstName: this.state.firstName,
+                        lastName: this.state.lastName,
+                        contactPerson: this.state.contactPerson,
+                        contactNo: this.state.contactNumber,
+                        email: this.state.email,
+                        dateOfBirth: this.state.dob,
+                        st_classRoomId: parseInt(this.state.classId)
+                    }).then(response => {
+                        if (response.status === 200) {
+                            this.setState({ alertClassName: "primary" })
+                        }
+                        else {
+                            this.setState({ alertClassName: "danger" })
+                        }
+                        this.setState({ isUpdating: false })
                         this.setState({
-                            gridKey: this.state.gridKey + 1
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "success",
+                                toggleAlert: this.toggleAlert
+                            }
                         })
-                    });
-                })  
-            } catch (error) {
-                alert(error)
-            }
-            
-        } else {
-            axios.post(`https://localhost:44319/Student/SaveStudent`, {
-                firstName: this.state.firstName,
-                lastName: this.state.lastName,
-                contactPerson: this.state.contactPerson,
-                contactNo: this.state.contactNumber,
-                email: this.state.email,
-                dateOfBirth: this.state.dob,
-                st_classRoomId: this.state.classId
-            }).then(response => {
-                if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
-                }
-                else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({ isUpdating: false })
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: response.data,
-                        color: "success",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-                this.LoadStudentList(() => {
-                    debugger;
-                    this.setState({
-                        gridKey: this.state.gridKey + 1
+                        this.LoadStudentList(() => {
+                            debugger;
+                            this.setState({
+                                gridKey: this.state.gridKey + 1
+                            })
+                        });
                     })
-                });
-            })
+                }
+            }
+            this.setState({ firstName: "" })
+            this.setState({ lastName: "" })
+            this.setState({ contactPerson: "" })
+            this.setState({ contactNumber: "" })
+            this.setState({ email: "" })
+            this.setState({ age: "" })
+            this.setState({ dob: "" })
+            this.setState({ classId: 0 })
         }
-        this.setState({ firstName: "" })
-        this.setState({ lastName: "" })
-        this.setState({ contactPerson: "" })
-        this.setState({ contactNumber: "" })
-        this.setState({ email: "" })
-        this.setState({ age: "" })
-        this.setState({ dob: "" })
-        this.setState({ classId: 0 })
+
 
     }
     toggleAlert() {
@@ -380,7 +434,7 @@ export class StudentForm extends Component {
                             <Col md="8" xs="12">
                                 <select className="customSelect" onChange={this.HandleChange}
                                     name="classId" value={this.state.classId}>
-                                    <option value="none" selected disabled hidden> -- Select Class -- </option>
+                                    <option key={0} value="none"> -- Select Class -- </option>
                                     {this.state.classList.map(item =>
                                         <option key={item.classRoomId} value={item.classRoomId}>{item.classRoomName}</option>
                                     )}

@@ -1,4 +1,4 @@
-import { Table } from "reactstrap";
+import { Table,Button } from "reactstrap";
 const AllocatedClassGrid = (props) =>{
     return(
         <div>
@@ -7,18 +7,19 @@ const AllocatedClassGrid = (props) =>{
                     <tr>Class Room</tr>
                 </thead>
                 <tbody>
-                    {/* {classRooms.map(cls =>
+                    {props.allocClassData.map(cls =>
                         <tr >
-                            <td>{cls.classRoomName}</td>
+                            <td>{cls.teacherName}</td>
+                            <td>{cls.classRoom}</td>
                             <td>
-                                <Button outline color="danger" id={cls.classRoomId} 
-                                    onClick = {() =>{props.DeleteMethod(cls.classRoomId)}}> 
+                                <Button outline color="danger" id={cls.allocatedClassId} 
+                                    onClick = {() =>{props.deAllocateClass(cls.allocatedClassId)}}> 
                                     DeAllocate
                                 </Button>
                             </td>
                             
                         </tr>
-                        )} */}
+                        )}
                 </tbody>
             </Table>
         </div>
