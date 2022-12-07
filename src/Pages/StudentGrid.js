@@ -10,7 +10,7 @@ export function StudentGrid(props){
                     {props.studentData.map(std =>
                         <tr >
                             <td>{std.firstName}</td>
-                            <td>{std.firstName}</td>
+                            <td>{std.lastName}</td>
                             <td>{std.contactPerson }</td>
                             <td>{std.contactNo }</td>
                             <td>{std.email }</td>

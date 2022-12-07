@@ -12,10 +12,16 @@ export class StudentForm extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            studentId: 0, 
-            firstName: '', 
-            lastName: '', contactPerson: '', contactNumber: '', email: '', age: '', dob: '', classId: 0,
-            initialKey:0,
+            studentId: 0,
+            firstName: '',
+            lastName: '',
+            contactPerson: '',
+            contactNumber: '',
+            email: '',
+            age: '',
+            dob: '',
+            classId: 0,
+            initialKey: 0,
             currentDate: new Date(),
             studentList: [],
             classList: [],
@@ -25,6 +31,7 @@ export class StudentForm extends Component {
             alertClassName: "",
             isUpdating: false,
             isCalcAge: false,
+            isStudentValid: true,
             alertBoxObj: {
                 status: false,
                 message: "",
@@ -38,6 +45,7 @@ export class StudentForm extends Component {
         this.DeleteStudent = this.DeleteStudent.bind(this)
         this.GetStudentById = this.GetStudentById.bind(this)
         this.CalculateAge = this.CalculateAge.bind(this)
+        this.SetInitialState = this.SetInitialState.bind(this)
     }
 
     componentDidMount() {
@@ -109,14 +117,18 @@ export class StudentForm extends Component {
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
-                        this.setState({ studentId: response.data[i].studentId })
-                        this.setState({ firstName: response.data[i].firstName })
-                        this.setState({ lastName: response.data[i].lastName })
-                        this.setState({ contactPerson: response.data[i].contactPerson })
-                        this.setState({ contactNumber: response.data[i].contactNo })
-                        this.setState({ email: response.data[i].email })
-                        this.setState({ dob: response.data[i].dateOfBirth, classId: parseInt(response.data[i].st_classRoomId), initialKey: this.state.initialKey + 1 })
-                        this.setState({ isUpdating: true })
+                        this.setState({
+                            studentId: response.data[i].studentId,
+                            firstName: response.data[i].firstName,
+                            lastName: response.data[i].lastName,
+                            contactPerson: response.data[i].contactPerson,
+                            contactNumber: response.data[i].contactNo,
+                            email: response.data[i].email,
+                            dob: response.data[i].dateOfBirth,
+                            classId: parseInt(response.data[i].st_classRoomId),
+                            initialKey: this.state.initialKey + 1,
+                            isUpdating: true
+                        })
                     }
                 }
                 else {
@@ -128,12 +140,13 @@ export class StudentForm extends Component {
     }
     SaveStudent() {
         const studentAvailability = this.state.studentList.some(std => {
-            if (std.email === this.state.email || std.contactNumber === this.state.contactNumber) {
+            if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
                 return true;
             } else {
                 return false;
             }
         })
+
         if (this.state.firstName.length === 0 || this.state.lastName.length === 0 || this.state.contactNumber.length === 0
             || this.state.contactPerson.length === 0 || this.state.email.length === 0 || this.state.dob.length === 0
             || this.state.classId === 0) {
@@ -164,106 +177,71 @@ export class StudentForm extends Component {
                 }
             })
         } else {
-            if (this.state.isUpdating) {
-                try {
-                    axios.put(`https://localhost:44319/Student/UpdateStudent`, {
-                        studentId: this.state.studentId,
-                        firstName: this.state.firstName,
-                        lastName: this.state.lastName,
-                        contactPerson: this.state.contactPerson,
-                        contactNo: this.state.contactNumber,
-                        email: this.state.email,
-                        dateOfBirth: this.state.dob,
-                        st_classRoomId: parseInt(this.state.classId) 
-                    }).then(response => {
-                        if (response.status === 200) {
-                            this.setState({ alertClassName: "primary" })
-                        }
-                        else {
-                            this.setState({
-                                alertBoxObj: {
-                                    status: true,
-                                    message: response.data,
-                                    color: "danger",
-                                    toggleAlert: this.toggleAlert
-                                }
-                            })
-                        }
-                        this.setState({ isUpdating: false })
+            if (this.state.studentId === 0 && studentAvailability) {
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: "Student Already Exists!",
+                        color: "danger",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+            } else {
+                axios.post(`https://localhost:44319/Student/SaveStudent`, {
+                    studentId: parseInt(this.state.studentId),
+                    firstName: this.state.firstName,
+                    lastName: this.state.lastName,
+                    contactPerson: this.state.contactPerson,
+                    contactNo: this.state.contactNumber,
+                    email: this.state.email,
+                    dateOfBirth: this.state.dob,
+                    st_classRoomId: parseInt(this.state.classId)
+                }).then(response => {
+                    if (response.status === 200) {
+                        this.setState({ alertClassName: "primary" })
+                    }
+                    else {
                         this.setState({
                             alertBoxObj: {
                                 status: true,
                                 message: response.data,
-                                color: "success",
+                                color: "danger",
                                 toggleAlert: this.toggleAlert
                             }
                         })
-                        this.LoadStudentList(() => {
-                            debugger;
-                            this.setState({
-                                gridKey: this.state.gridKey + 1
-                            })
-                        });
-                    })
-                } catch (error) {
-                    alert(error)
-                }
-
-            } else {
-                if (studentAvailability) {
+                    }
                     this.setState({
                         alertBoxObj: {
                             status: true,
-                            message: "Student already Exists!!",
+                            message: response.data,
                             color: "success",
                             toggleAlert: this.toggleAlert
                         }
                     })
-                } else {
-                    axios.post(`https://localhost:44319/Student/SaveStudent`, {
-                        firstName: this.state.firstName,
-                        lastName: this.state.lastName,
-                        contactPerson: this.state.contactPerson,
-                        contactNo: this.state.contactNumber,
-                        email: this.state.email,
-                        dateOfBirth: this.state.dob,
-                        st_classRoomId: parseInt(this.state.classId)
-                    }).then(response => {
-                        if (response.status === 200) {
-                            this.setState({ alertClassName: "primary" })
-                        }
-                        else {
-                            this.setState({ alertClassName: "danger" })
-                        }
-                        this.setState({ isUpdating: false })
+                    this.LoadStudentList(() => {
+                        debugger;
                         this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "success",
-                                toggleAlert: this.toggleAlert
-                            }
+                            gridKey: this.state.gridKey + 1
                         })
-                        this.LoadStudentList(() => {
-                            debugger;
-                            this.setState({
-                                gridKey: this.state.gridKey + 1
-                            })
-                        });
-                    })
-                }
+                    });
+                })
             }
-            this.setState({ firstName: "" })
-            this.setState({ lastName: "" })
-            this.setState({ contactPerson: "" })
-            this.setState({ contactNumber: "" })
-            this.setState({ email: "" })
-            this.setState({ age: "" })
-            this.setState({ dob: "" })
-            this.setState({ classId: 0 })
+            this.SetInitialState()
         }
+    }
 
 
+    SetInitialState() {
+        this.setState({
+            firstName: "",
+            lastName: "",
+            contactPerson: "",
+            contactNumber: "",
+            email: "",
+            age: "",
+            dob: "",
+            classId: 0
+        })
     }
     toggleAlert() {
         this.setState({
@@ -277,7 +255,7 @@ export class StudentForm extends Component {
     }
     HandleChange(event) {
         this.setState({
-            [event.target.name]: event.target.value
+            [event.target.name]: event.target.value,
         })
     }
     CalculateAge(event) {
@@ -476,10 +454,6 @@ export class StudentForm extends Component {
                         DeleteMethod={this.DeleteStudent} />
                 </div>
             </div>
-
-
-
-
         )
     }
 }
