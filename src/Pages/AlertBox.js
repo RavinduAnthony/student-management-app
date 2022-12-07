@@ -5,7 +5,7 @@ const AlertBox = (props) => {
 
   return (
     <div>
-      <Alert color={props.alertBoxObj.color} isOpen={props.alertBoxObj.status} toggle={() => { props.alertBoxObj.toggleAlert(); }}>
+      <Alert className={props.alertBoxObj.color} color={props.alertBoxObj.color} isOpen={props.alertBoxObj.status} toggle={() => { props.alertBoxObj.toggleAlert(); }}>
         {props.alertBoxObj.message}
       </Alert>
     </div>

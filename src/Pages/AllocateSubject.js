@@ -77,7 +77,7 @@ const AllocateSubject = () => {
             setAlertBoxObj({
                 status: true,
                 message: response.data,
-                color: "success",
+                color: "successAlert",
                 toggleAlert: toggleAlert
             })
             GetAllocatedSubjectList(teacher)
@@ -90,7 +90,7 @@ const AllocateSubject = () => {
             setAlertBoxObj({
                 status: true,
                 message: response.data,
-                color: "success",
+                color: "successAlert",
                 toggleAlert: toggleAlert
             })
             GetAllocatedSubjectList(teacherId)
@@ -100,11 +100,27 @@ const AllocateSubject = () => {
         setInitialTeacher(initialTeacher + 1)
         setTeacherID(e.target.value)
         GetAllocatedSubjectList(e.target.value)
+        setAlertBoxObj({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
+        })
     }
 
     const HandleSubjectChange = (e) => {
         setInitialSubject(initialSubject + 1)
         setSubjectId(e.target.value)
+        setAlertBoxObj({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
+        })
     }
 
     const GetAllocatedSubjectList = (teacherId) => {

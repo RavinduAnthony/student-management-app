@@ -55,6 +55,7 @@ export class StudentForm extends Component {
             })
         })
     }
+
     LoadStudentList(callback) {
         axios.get(`https://localhost:44319/Student/GetAllStudents`)
             .then(response => {
@@ -87,6 +88,7 @@ export class StudentForm extends Component {
                 callback(true)
             })
     }
+
     DeleteStudent(studentId) {
         axios.post(`https://localhost:44319/Student/DeleteStudent?StudentId=` + studentId)
             .then(response => {
@@ -100,7 +102,7 @@ export class StudentForm extends Component {
                     alertBoxObj: {
                         status: true,
                         message: response.data,
-                        color: "success",
+                        color: "successAlert",
                         toggleAlert: this.toggleAlert
                     }
                 })
@@ -112,6 +114,7 @@ export class StudentForm extends Component {
                 });
             })
     }
+
     GetStudentById(studentId) {
         axios.get(`https://localhost:44319/Student/GetStudentById?StudentID=` + studentId)
             .then(response => {
@@ -138,6 +141,7 @@ export class StudentForm extends Component {
                 }
             })
     }
+
     SaveStudent() {
         const studentAvailability = this.state.studentList.some(std => {
             if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
@@ -154,7 +158,7 @@ export class StudentForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide All the Fields!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
@@ -163,7 +167,7 @@ export class StudentForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide a valid Phone Number!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
@@ -172,7 +176,7 @@ export class StudentForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide a valid Email!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
@@ -182,7 +186,7 @@ export class StudentForm extends Component {
                     alertBoxObj: {
                         status: true,
                         message: "Student Already Exists!",
-                        color: "danger",
+                        color: "dangerAlert",
                         toggleAlert: this.toggleAlert
                     }
                 })
@@ -205,7 +209,7 @@ export class StudentForm extends Component {
                             alertBoxObj: {
                                 status: true,
                                 message: response.data,
-                                color: "danger",
+                                color: "dangerAlert",
                                 toggleAlert: this.toggleAlert
                             }
                         })
@@ -214,7 +218,7 @@ export class StudentForm extends Component {
                         alertBoxObj: {
                             status: true,
                             message: response.data,
-                            color: "success",
+                            color: "successAlert",
                             toggleAlert: this.toggleAlert
                         }
                     })
@@ -230,7 +234,6 @@ export class StudentForm extends Component {
         }
     }
 
-
     SetInitialState() {
         this.setState({
             firstName: "",
@@ -243,6 +246,7 @@ export class StudentForm extends Component {
             classId: 0
         })
     }
+
     toggleAlert() {
         this.setState({
             alertBoxObj: {
@@ -253,11 +257,19 @@ export class StudentForm extends Component {
             }
         })
     }
+
     HandleChange(event) {
         this.setState({
             [event.target.name]: event.target.value,
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
         })
     }
+
     CalculateAge(event) {
         this.setState({ dob: event.target.value })
         var birthdate = new Date(event.target.value)
@@ -266,6 +278,7 @@ export class StudentForm extends Component {
         var age = Math.floor((difference / (1000 * 60 * 60 * 24)) / 365)
         this.setState({ age: age })
     }
+    
     render() {
         return (
             <div>

@@ -31,6 +31,7 @@ class ClassForm extends Component {
         this.GetClassById = this.GetClassById.bind(this);
         this.DeleteClassRoom = this.DeleteClassRoom.bind(this);
         this.toggleAlert = this.toggleAlert.bind(this);
+        this.setInitialState = this.setInitialState.bind(this);
     }
 
     componentDidMount() {
@@ -90,7 +91,7 @@ class ClassForm extends Component {
                     alertBoxObj: {
                         status: true,
                         message: response.data,
-                        color: "success",
+                        color: "successAlert",
                         toggleAlert: this.toggleAlert
                     }
                 })
@@ -103,45 +104,37 @@ class ClassForm extends Component {
             })
     }
     saveClass() {
+        const isExist = this.state.classRooms.map(item => {
+            var newClass = this.state.className.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
+            var existingClass = item.classRoomName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
+            if (existingClass === newClass) {
+                return true;
+            } else {
+                return false;
+            }
+        })
         if (this.state.className.length === 0) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please provide All the Fields!!",
-                    color: "success",
+                    message: "Please provide Class Name!!",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (this.state.isUpdating) {
-                axios.put(`https://localhost:44319/ClassRoom/UpdateClassRoom`, {
-                    classRoomId: this.state.classID,
-                    classRoomName: this.state.className
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
+            if (this.state.classID === 0 && !isExist) {
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: "Class Already Exists!!",
+                        color: "dangerAlert",
+                        toggleAlert: this.toggleAlert
                     }
-                    else {
-                        this.setState({ alertClassName: "danger" })
-                    }
-                    this.setState({isUpdating: false})
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "success",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                    this.loadClassRoomList(() => {
-                        debugger;
-                        this.setState({
-                            gridKey: this.state.gridKey + 1
-                        })
-                    });
                 })
             } else {
                 axios.post(`https://localhost:44319/ClassRoom/SaveClassRoom`, {
+                    classRoomId: parseInt(this.state.classID),
                     classRoomName: this.state.className
                 }).then(response => {
                     if (response.status === 200) {
@@ -154,7 +147,7 @@ class ClassForm extends Component {
                         alertBoxObj: {
                             status: true,
                             message: response.data,
-                            color: "success",
+                            color: "successAlert",
                             toggleAlert: this.toggleAlert
                         }
                     })
@@ -166,10 +159,16 @@ class ClassForm extends Component {
                     });
                 })
             }
+            this.setInitialState();
         }
-        this.setState({ className: "" })
     }
 
+    setInitialState() {
+        this.setState({
+            className: "",
+            classID: 0
+        })
+    }
     toggleAlert() {
         this.setState({
             alertBoxObj: {
@@ -184,7 +183,7 @@ class ClassForm extends Component {
     render() {
         return (
             <div>
-                <hr/>
+                <hr />
                 <Row>
                     <Col md="6" xs="12">
                         <Row>

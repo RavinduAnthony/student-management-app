@@ -32,6 +32,7 @@ export class TeacherForm extends Component {
         this.SaveTeacher = this.SaveTeacher.bind(this)
         this.toggleAlert = this.toggleAlert.bind(this)
         this.DeleteTeacher = this.DeleteTeacher.bind(this)
+        this.SetInitialState = this.SetInitialState.bind(this)
     }
 
     componentDidMount() {
@@ -41,6 +42,7 @@ export class TeacherForm extends Component {
             })
         });
     }
+    
     LoadTeacherList(callback) {
         axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
             .then(response => {
@@ -58,27 +60,33 @@ export class TeacherForm extends Component {
                 callback(true);
             })
     }
+    
     GetTeacherById(teacherId) {
         axios.get(`https://localhost:44319/Teacher/GetTeacherByID?TeacherId=` + teacherId)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
-                        this.setState({ teacherId: response.data[i].teacherId })
-                        this.setState({ firstName: response.data[i].teacherFirstName })
-                        this.setState({ lastName: response.data[i].teacherLastName })
-                        this.setState({ conNumber: response.data[i].contactNo })
-                        this.setState({ email: response.data[i].email })
-                        this.setState({ isUpdating: true })
+                        this.setState({
+                            teacherId: response.data[i].teacherId,
+                            firstName: response.data[i].teacherFirstName,
+                            lastName: response.data[i].teacherLastName,
+                            conNumber: response.data[i].contactNo,
+                            email: response.data[i].email,
+                            isUpdating: true
+                        })
                     }
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                    this.setState({ isShowAlert: true })
-                    this.setState({ alertMessage: "Not Found!" })
+                    this.setState({
+                        alertClassName: "danger",
+                        isShowAlert: true,
+                        alertMessage: "Not Found!"
+                    })
                 }
 
             })
     }
+    
     DeleteTeacher(teacherId) {
         axios.post(`https://localhost:44319/Teacher/DeleteTeacher?TeacherId=` + teacherId)
             .then(response => {
@@ -92,7 +100,7 @@ export class TeacherForm extends Component {
                     alertBoxObj: {
                         status: true,
                         message: response.data,
-                        color: "success",
+                        color: "successAlert",
                         toggleAlert: this.toggleAlert
                     }
                 })
@@ -104,6 +112,7 @@ export class TeacherForm extends Component {
                 });
             })
     }
+    
     SaveTeacher() {
         const teacherAvailability = this.state.teacherList.some(tch => {
             if (tch.email === this.state.email || tch.contactNo === this.state.conNumber) {
@@ -118,7 +127,7 @@ export class TeacherForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide All the Fields!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
@@ -127,7 +136,7 @@ export class TeacherForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide a valid Phone Number!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
@@ -136,15 +145,25 @@ export class TeacherForm extends Component {
                 alertBoxObj: {
                     status: true,
                     message: "Please provide a valid Email!!",
-                    color: "success",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            
-            if (this.state.isUpdating) {
-                axios.put(`https://localhost:44319/Teacher/UpdateTeacher`, {
-                    teacherId: this.state.teacherId,
+
+            if (this.state.teacherId === 0 && teacherAvailability) {
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: "Teacher Already Exists!",
+                        color: "dangerAlert",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+
+            } else {
+                axios.post(`https://localhost:44319/Teacher/SaveTeacher`, {
+                    teacherId: parseInt(this.state.teacherId),
                     teacherFirstName: this.state.firstName,
                     teacherLastName: this.state.lastName,
                     contactNo: this.state.conNumber,
@@ -161,7 +180,7 @@ export class TeacherForm extends Component {
                         alertBoxObj: {
                             status: true,
                             message: response.data,
-                            color: "success",
+                            color: "successAlert",
                             toggleAlert: this.toggleAlert
                         }
                     })
@@ -173,58 +192,22 @@ export class TeacherForm extends Component {
                     });
                 })
 
-            } else {
-                
-                if (teacherAvailability) {
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: "Teacher already Exists!!",
-                            color: "success",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                } else {
-                    axios.post(`https://localhost:44319/Teacher/SaveTeacher`, {
-                        teacherId: this.state.teacherId,
-                        teacherFirstName: this.state.firstName,
-                        teacherLastName: this.state.lastName,
-                        contactNo: this.state.conNumber,
-                        email: this.state.email
-                    }).then(response => {
-                        if (response.status === 200) {
-                            this.setState({ alertClassName: "primary" })
-                        }
-                        else {
-                            this.setState({ alertClassName: "danger" })
-                        }
-                        this.setState({ isUpdating: false })
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "success",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                        this.LoadTeacherList(() => {
-                            debugger;
-                            this.setState({
-                                gridKey: this.state.gridKey + 1
-                            })
-                        });
-                    })
-                }
-
             }
-            this.setState({ firstName: "" })
-            this.setState({ lastName: "" })
-            this.setState({ conNumber: "" })
-            this.setState({ email: "" })
+            this.SetInitialState()
         }
 
     }
 
+    SetInitialState() {
+        this.setState({
+            firstName: "",
+            teacherId: 0,
+            lastName: "",
+            conNumber: "",
+            email: ""
+        })
+    }
+    
     toggleAlert() {
         this.setState({
             alertBoxObj: {
@@ -235,9 +218,16 @@ export class TeacherForm extends Component {
             }
         })
     }
+    
     HandleChange(e) {
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
         })
     }
     render() {

@@ -25,10 +25,13 @@ export class SubjectForm extends Component {
                 toggleAlert: () => { }
             }
         }
-        this.SaveSubject = this.SaveSubject.bind(this)
-        this.GetSubjectById = this.GetSubjectById.bind(this)
-        this.DeleteSubject = this.DeleteSubject.bind(this)
-        this.toggleAlert = this.toggleAlert.bind(this)
+        this.SaveSubject = this.SaveSubject.bind(this);
+        this.GetSubjectById = this.GetSubjectById.bind(this);
+        this.DeleteSubject = this.DeleteSubject.bind(this);
+        this.toggleAlert = this.toggleAlert.bind(this);
+        this.setInitialState = this.setInitialState.bind(this);
+        this.HandleChange = this.HandleChange.bind(this);
+
     }
     componentDidMount() {
         this.LoadSubjectList(() => {
@@ -38,6 +41,7 @@ export class SubjectForm extends Component {
             })
         });
     }
+
     LoadSubjectList(callback) {
         axios.get(`https://localhost:44319/Subject/GetAllSubjects`)
             .then(response => {
@@ -53,6 +57,7 @@ export class SubjectForm extends Component {
                 callback(true);
             })
     }
+
     GetSubjectById(sbjId) {
         axios.get(`https://localhost:44319/Subject/GetSubjectById?SubjectId=` + sbjId)
             .then(response => {
@@ -70,6 +75,7 @@ export class SubjectForm extends Component {
                 }
             })
     }
+
     DeleteSubject(sbjId) {
         axios.post(`https://localhost:44319/Subject/DeleteSubject?SubjectId=` + sbjId)
             .then(response => {
@@ -79,33 +85,55 @@ export class SubjectForm extends Component {
                 else {
                     this.setState({ alertClassName: "danger" })
                 }
-                this.setState({ isShowAlert: true })
-                this.setState({ alertMessage: response.data })
-                this.state.subjects.length = 0;
-                this.componentDidMount()
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: response.data,
+                        color: "successAlert",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+                this.LoadSubjectList(() => {
+                    debugger;
+                    this.setState({
+                        gridKey: this.state.gridKey + 1
+                    })
+                });
             })
     }
+
     SaveSubject() {
         const subjectAvailability = this.state.subjects.some(item => {
-            if (item.subjectName.toLowerCase() === this.state.subjectName.toLowerCase()) {
+            var newSubject = this.state.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
+            var existingSubject = item.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
+            if (existingSubject === newSubject) {
                 return true;
             } else {
                 return false;
             }
-         })
+        })
         if (this.state.subjectName.length === 0) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please provide All the Fields!!",
-                    color: "success",
+                    message: "Please provide Subject Name!!",
+                    color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (this.state.isUpdating) {
-                axios.put(`https://localhost:44319/Subject/UpdateSubject`, {
-                    subjectId: this.state.subjectID,
+            if (this.state.subjectID === 0 && subjectAvailability) {
+                this.setState({
+                    alertBoxObj: {
+                        status: true,
+                        message: "Subject already exists!",
+                        color: "dangerAlert",
+                        toggleAlert: this.toggleAlert
+                    }
+                })
+            } else {
+                axios.post(`https://localhost:44319/Subject/SaveSubject`, {
+                    subjectId: parseInt(this.state.subjectID),
                     subjectName: this.state.subjectName
                 }).then(response => {
                     if (response.status === 200) {
@@ -114,63 +142,33 @@ export class SubjectForm extends Component {
                     else {
                         this.setState({ alertClassName: "danger" })
                     }
-                    this.setState({ isUpdating: false })
                     this.setState({
                         alertBoxObj: {
                             status: true,
                             message: response.data,
-                            color: "success",
+                            color: "successAlert",
                             toggleAlert: this.toggleAlert
                         }
                     })
                     this.LoadSubjectList(() => {
-                        debugger;
                         this.setState({
                             gridKey: this.state.gridKey + 1
                         })
                     });
                 })
-            } else {
-
-                if (subjectAvailability) {
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: "Subject already exists!",
-                            color: "success",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                } else {
-                    axios.post(`https://localhost:44319/Subject/SaveSubject`, {
-                        subjectName: this.state.subjectName
-                    }).then(response => {
-                        if (response.status === 200) {
-                            this.setState({ alertClassName: "primary" })
-                        }
-                        else {
-                            this.setState({ alertClassName: "danger" })
-                        }
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "success",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                        this.LoadSubjectList(() => {
-                            this.setState({
-                                gridKey: this.state.gridKey + 1
-                            })
-                        });
-                    })
-                }
-
             }
+            this.setInitialState();
         }
-        this.setState({ subjectName: "" })
+
     }
+
+    setInitialState() {
+        this.setState({
+            subjectName: "",
+            subjectID: 0
+        })
+    }
+
     toggleAlert() {
         this.setState({
             alertBoxObj: {
@@ -179,6 +177,18 @@ export class SubjectForm extends Component {
                 color: "success",
                 toggleAlert: ""
             }
+        })
+    }
+
+    HandleChange(e){
+        this.setState({ 
+            subjectName: e.target.value,
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            } 
         })
     }
     render() {
@@ -195,7 +205,7 @@ export class SubjectForm extends Component {
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.subjectName}
-                                    onChange={(e) => { this.setState({ subjectName: e.target.value }) }}
+                                    onChange={this.HandleChange}
                                 />
                             </Col>
                         </Row>

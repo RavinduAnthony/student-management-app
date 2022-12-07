@@ -76,7 +76,7 @@ const AllocateClass = () => {
             setAlertBoxObj({
                 status: true,
                 message: response.data,
-                color: "success",
+                color: "successAlert",
                 toggleAlert: toggleAlert
             })
             GetallocatedClassList(teacher)
@@ -86,11 +86,27 @@ const AllocateClass = () => {
         setInitialTeacher(initialTeacher + 1)
         setTeacherID(e.target.value)
         GetallocatedClassList(e.target.value)
+        setAlertBoxObj({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
+        })
     }
 
     const HandleClassChange = (e) => {
         setInitialClass(initialClass + 1)
         setClassId(e.target.value)
+        setAlertBoxObj({
+            alertBoxObj: {
+                status: false,
+                message: "",
+                color: "success",
+                toggleAlert: () => { }
+            }
+        })
     }
 
     const GetallocatedClassList = (teacherId) => {
@@ -116,7 +132,7 @@ const AllocateClass = () => {
                 setAlertBoxObj({
                     status: true,
                     message: response.data,
-                    color: "success",
+                    color: "successAlert",
                     toggleAlert: toggleAlert
                 })
                 GetallocatedClassList(teacherId)
