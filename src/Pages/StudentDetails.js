@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Row, Col, Input, Label, Button } from "reactstrap";
 import StudentDetailGrid from "./StudentDetailGrid";
+import JsPDF from 'jspdf';
 const StudentDetails = () => {
     const [studentList, setStudentList] = useState([])
     const [gridDetails, setGridDetails] = useState([])
@@ -11,7 +12,7 @@ const StudentDetails = () => {
     const [classRoom, setClassRoom] = useState("")
     const [email, setEmail] = useState("")
     const [dob, setdob] = useState("")
-
+    const API_KEY = process.env.REACT_APP_API_KEY;
     useEffect(() => {
         GetInitialData()
     }, [])
@@ -37,7 +38,7 @@ const StudentDetails = () => {
     }
 
     const GetStudentDetails = (studentId) => {
-        axios.get(`https://localhost:44319/Student/GetStudentDetails1?StudentId=` + studentId)
+        axios.get(`${API_KEY}Student/GetStudentDetails1?StudentId=` + studentId)
             .then(response => {
                 response.data.map(item => {
                     setContactPerson(item.stContactPerson)
@@ -50,7 +51,7 @@ const StudentDetails = () => {
     }
 
     const GetGridDetails = (studentId) => {
-        axios.get(`https://localhost:44319/Student/GetStudentDetails2?StudentId=` + studentId)
+        axios.get(`${API_KEY}Student/GetStudentDetails2?StudentId=` + studentId)
             .then(response => {
                 setGridDetails(
                     response.data.map(item => {
@@ -65,8 +66,9 @@ const StudentDetails = () => {
     const RefreshPage = () => {
         window.location.reload()
     }
+
     return (
-        <div>
+        <div id="studentDetails" >
             <hr />
             <br />
             <Row>

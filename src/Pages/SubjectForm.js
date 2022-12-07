@@ -43,7 +43,7 @@ export class SubjectForm extends Component {
     }
 
     LoadSubjectList(callback) {
-        axios.get(`https://localhost:44319/Subject/GetAllSubjects`)
+        axios.get(`${process.env.REACT_APP_API_KEY}Subject/GetAllSubjects`)
             .then(response => {
                 this.setState({
                     subjects: response.data.map(item => {
@@ -59,7 +59,7 @@ export class SubjectForm extends Component {
     }
 
     GetSubjectById(sbjId) {
-        axios.get(`https://localhost:44319/Subject/GetSubjectById?SubjectId=` + sbjId)
+        axios.get(`${process.env.REACT_APP_API_KEY}Subject/GetSubjectById?SubjectId=` + sbjId)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -77,7 +77,7 @@ export class SubjectForm extends Component {
     }
 
     DeleteSubject(sbjId) {
-        axios.post(`https://localhost:44319/Subject/DeleteSubject?SubjectId=` + sbjId)
+        axios.post(`${process.env.REACT_APP_API_KEY}Subject/DeleteSubject?SubjectId=` + sbjId)
             .then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
@@ -132,7 +132,7 @@ export class SubjectForm extends Component {
                     }
                 })
             } else {
-                axios.post(`https://localhost:44319/Subject/SaveSubject`, {
+                axios.post(`${process.env.REACT_APP_API_KEY}Subject/SaveSubject`, {
                     subjectId: parseInt(this.state.subjectID),
                     subjectName: this.state.subjectName
                 }).then(response => {

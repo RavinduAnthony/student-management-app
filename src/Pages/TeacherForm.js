@@ -44,7 +44,7 @@ export class TeacherForm extends Component {
     }
 
     LoadTeacherList(callback) {
-        axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
+        axios.get(`${process.env.REACT_APP_API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
                 this.setState({
                     teacherList: response.data.map(item => {
@@ -62,7 +62,7 @@ export class TeacherForm extends Component {
     }
 
     GetTeacherById(teacherId) {
-        axios.get(`https://localhost:44319/Teacher/GetTeacherByID?TeacherId=` + teacherId)
+        axios.get(`${process.env.REACT_APP_API_KEY}Teacher/GetTeacherByID?TeacherId=` + teacherId)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -88,7 +88,7 @@ export class TeacherForm extends Component {
     }
 
     DeleteTeacher(teacherId) {
-        axios.post(`https://localhost:44319/Teacher/DeleteTeacher?TeacherId=` + teacherId)
+        axios.post(`${process.env.REACT_APP_API_KEY}Teacher/DeleteTeacher?TeacherId=` + teacherId)
             .then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
@@ -162,7 +162,7 @@ export class TeacherForm extends Component {
                 })
 
             } else {
-                axios.post(`https://localhost:44319/Teacher/SaveTeacher`, {
+                axios.post(`${process.env.REACT_APP_API_KEY}Teacher/SaveTeacher`, {
                     teacherId: parseInt(this.state.teacherId),
                     teacherFirstName: this.state.firstName,
                     teacherLastName: this.state.lastName,

@@ -20,6 +20,7 @@ const AllocateClass = () => {
         color: "success",
         toggleAlert: () => { }
     })
+    const API_KEY = process.env.REACT_APP_API_KEY;
 
     const toggleAlert = () => {
         setAlertBoxObj({
@@ -32,7 +33,7 @@ const AllocateClass = () => {
         })
     }
     const getInitialData = () => {
-        axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
+        axios.get(`${API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
                 setTeachers(
                     response.data.map(item => {
@@ -46,7 +47,7 @@ const AllocateClass = () => {
                     })
                 )
             })
-        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
+        axios.get(`${API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 setClassRooms(
                     response.data.map(item => {
@@ -69,18 +70,38 @@ const AllocateClass = () => {
 
     const AllocateClass = () => {
         var teacher = parseInt(teacherId)
-        axios.post(`https://localhost:44319/ClassAllocation/AllocateClass`, {
-            teacherId: parseInt(teacherId),
-            classId: parseInt(classId)
-        }).then(response => {
+        var classRoom = parseInt(classId)
+
+        const isAllocated = allocClasses.some(item => {
+            if (item.teacherId === teacher && item.classId === classRoom) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+
+        if (isAllocated) {
             setAlertBoxObj({
                 status: true,
-                message: response.data,
-                color: "successAlert",
+                message: "Class already allocated to Teacher!",
+                color: "dangerAlert",
                 toggleAlert: toggleAlert
             })
-            GetallocatedClassList(teacher)
-        })
+        } else {
+            axios.post(`${API_KEY}ClassAllocation/AllocateClass`, {
+                teacherId: parseInt(teacherId),
+                classId: parseInt(classId)
+            }).then(response => {
+                setAlertBoxObj({
+                    status: true,
+                    message: response.data,
+                    color: "successAlert",
+                    toggleAlert: toggleAlert
+                })
+                GetallocatedClassList(teacher)
+            })
+        }
+
     }
     const HandleTeacherChange = (e) => {
         setInitialTeacher(initialTeacher + 1)
@@ -110,7 +131,7 @@ const AllocateClass = () => {
     }
 
     const GetallocatedClassList = (teacherId) => {
-        axios.get(`https://localhost:44319/ClassAllocation/GetAllocatedClassById?TeacherId=` + teacherId)
+        axios.get(`${API_KEY}ClassAllocation/GetAllocatedClassById?TeacherId=` + teacherId)
             .then(response => {
                 setAlocClasses(
                     response.data.map(item => {
@@ -118,7 +139,8 @@ const AllocateClass = () => {
                             allocatedClassId: item.allocatedClassId,
                             classRoom: item.classRoom,
                             teacherName: item.teacherName,
-                            teacherId: item.teacherId
+                            teacherId: item.teacherId,
+                            classId: item.classId
                         }
                     })
                 )
@@ -127,7 +149,7 @@ const AllocateClass = () => {
     }
 
     const DeAllocateClass = (allocationId, teacherId) => {
-        axios.post(`https://localhost:44319/ClassAllocation/DeAllocateClass?allocatedClassId=` + allocationId)
+        axios.post(`${API_KEY}ClassAllocation/DeAllocateClass?allocatedClassId=` + allocationId)
             .then(response => {
                 setAlertBoxObj({
                     status: true,

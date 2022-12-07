@@ -20,6 +20,7 @@ const AllocateSubject = () => {
         color: "success",
         toggleAlert: () => { }
     })
+    const API_KEY = process.env.REACT_APP_API_KEY;
 
     const toggleAlert = () => {
         setAlertBoxObj({
@@ -33,7 +34,7 @@ const AllocateSubject = () => {
     }
 
     const GetInitialData = () => {
-        axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
+        axios.get(`${API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
                 setTeachers(
                     response.data.map(item => {
@@ -47,7 +48,7 @@ const AllocateSubject = () => {
                     })
                 )
             })
-        axios.get(`https://localhost:44319/Subject/GetAllSubjects`)
+        axios.get(`${API_KEY}Subject/GetAllSubjects`)
             .then(response => {
                 setSubjects(
                     response.data.map(item => {
@@ -70,22 +71,40 @@ const AllocateSubject = () => {
 
     const AlocateSubject = () => {
         var teacher = parseInt(teacherId)
-        axios.post(`https://localhost:44319/SubjectAllocation/AllocateSubject`, {
-            teacherId: parseInt(teacherId),
-            subjectID: parseInt(subjectId)
-        }).then(response => {
+        var subject = parseInt(subjectId)
+        const isAllocated = allocSubjects.some(item => {
+            if (item.subjectID === subject && item.teacherId === teacher) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+        if (isAllocated) {
             setAlertBoxObj({
                 status: true,
-                message: response.data,
-                color: "successAlert",
+                message: "Subject already allocated to Teacher!",
+                color: "dangerAlert",
                 toggleAlert: toggleAlert
             })
-            GetAllocatedSubjectList(teacher)
-        })
+        } else {
+            axios.post(`${API_KEY}SubjectAllocation/AllocateSubject`, {
+                teacherId: parseInt(teacherId),
+                subjectID: parseInt(subjectId)
+            }).then(response => {
+                setAlertBoxObj({
+                    status: true,
+                    message: response.data,
+                    color: "successAlert",
+                    toggleAlert: toggleAlert
+                })
+                GetAllocatedSubjectList(teacher)
+            })
+        }
+
     }
 
     const DeAllocateSubject = (allocatedId, teacherId) => {
-        axios.post(`https://localhost:44319/SubjectAllocation/DeAllocateSubject?allocatedSubjectId=` + allocatedId)
+        axios.post(`${API_KEY}SubjectAllocation/DeAllocateSubject?allocatedSubjectId=` + allocatedId)
             .then(response => {
                 setAlertBoxObj({
                     status: true,
@@ -124,7 +143,7 @@ const AllocateSubject = () => {
     }
 
     const GetAllocatedSubjectList = (teacherId) => {
-        axios.get(`https://localhost:44319/SubjectAllocation/GetAllocatedSubjectsById?TeacherId=` + teacherId)
+        axios.get(`${API_KEY}SubjectAllocation/GetAllocatedSubjectsById?TeacherId=` + teacherId)
             .then(response => {
                 setAllocSubjects(
                     response.data.map(item => {
@@ -132,7 +151,8 @@ const AllocateSubject = () => {
                             allocatedId: item.allocatedId,
                             subjectName: item.subjectName,
                             teacherName: item.teacherName,
-                            teacherId: item.teacherId
+                            teacherId: item.teacherId,
+                            subjectID: item.subjectID
                         }
                     })
                 )
@@ -141,7 +161,7 @@ const AllocateSubject = () => {
     }
     return (
         <div>
-            <hr/>
+            <hr />
             <Row>
                 <Col md="6" xs="12">
                     <Row>

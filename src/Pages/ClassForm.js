@@ -33,7 +33,7 @@ class ClassForm extends Component {
         this.toggleAlert = this.toggleAlert.bind(this);
         this.setInitialState = this.setInitialState.bind(this);
     }
-
+    
     componentDidMount() {
         this.loadClassRoomList(() => {
             debugger;
@@ -44,7 +44,7 @@ class ClassForm extends Component {
     }
 
     loadClassRoomList(callback) {
-        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
+        axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 debugger;
                 this.setState({
@@ -61,7 +61,7 @@ class ClassForm extends Component {
     }
 
     GetClassById(classRoomId) {
-        axios.get(`https://localhost:44319/ClassRoom/GetClassRoomById?ClassId=` + classRoomId)
+        axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetClassRoomById?ClassId=` + classRoomId)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -79,7 +79,7 @@ class ClassForm extends Component {
             })
     }
     DeleteClassRoom(classRoomId) {
-        axios.post(`https://localhost:44319/ClassRoom/DeleteClassRoom?ClassId=` + classRoomId)
+        axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=` + classRoomId)
             .then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
@@ -133,7 +133,7 @@ class ClassForm extends Component {
                     }
                 })
             } else {
-                axios.post(`https://localhost:44319/ClassRoom/SaveClassRoom`, {
+                axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/SaveClassRoom`, {
                     classRoomId: parseInt(this.state.classID),
                     classRoomName: this.state.className
                 }).then(response => {

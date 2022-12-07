@@ -57,7 +57,7 @@ export class StudentForm extends Component {
     }
 
     LoadStudentList(callback) {
-        axios.get(`https://localhost:44319/Student/GetAllStudents`)
+        axios.get(`${process.env.REACT_APP_API_KEY}Student/GetAllStudents`)
             .then(response => {
                 this.setState({
                     studentList: response.data.map(std => {
@@ -75,7 +75,7 @@ export class StudentForm extends Component {
                 })
                 callback(true);
             })
-        axios.get(`https://localhost:44319/ClassRoom/GetAllClassRooms`)
+        axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 this.setState({
                     classList: response.data.map(cls => {
@@ -90,7 +90,7 @@ export class StudentForm extends Component {
     }
 
     DeleteStudent(studentId) {
-        axios.post(`https://localhost:44319/Student/DeleteStudent?StudentId=` + studentId)
+        axios.post(`${process.env.REACT_APP_API_KEY}Student/DeleteStudent?StudentId=` + studentId)
             .then(response => {
                 if (response.status === 200) {
                     this.setState({ alertClassName: "primary" })
@@ -116,7 +116,7 @@ export class StudentForm extends Component {
     }
 
     GetStudentById(studentId) {
-        axios.get(`https://localhost:44319/Student/GetStudentById?StudentID=` + studentId)
+        axios.get(`${process.env.REACT_APP_API_KEY}Student/GetStudentById?StudentID=` + studentId)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -191,7 +191,7 @@ export class StudentForm extends Component {
                     }
                 })
             } else {
-                axios.post(`https://localhost:44319/Student/SaveStudent`, {
+                axios.post(`${process.env.REACT_APP_API_KEY}Student/SaveStudent`, {
                     studentId: parseInt(this.state.studentId),
                     firstName: this.state.firstName,
                     lastName: this.state.lastName,
@@ -371,7 +371,7 @@ export class StudentForm extends Component {
                                     type="email"
                                     value={this.state.email}
                                     name="email"
-                                    onChange={this.CalculateAge}
+                                    onChange={this.HandleChange}
                                 />
                             </Col>
                         </Row>
