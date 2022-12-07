@@ -6,7 +6,9 @@ export function ClassGrid(props){
         <div>
             <Table bordered>
                 <thead>
-                    <tr>Class Room</tr>
+                    <tr>
+                        <th>Class Room</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {classRooms.map(cls =>

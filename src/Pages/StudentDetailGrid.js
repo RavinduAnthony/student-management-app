@@ -4,7 +4,10 @@ const StudentDetailGrid = (props) => {
     return (
         <Table bordered>
             <thead>
-                <tr>Students</tr>
+                <tr>
+                    <th>Subject</th>
+                    <th>Teacher</th>
+                </tr>
             </thead>
             <tbody>
 

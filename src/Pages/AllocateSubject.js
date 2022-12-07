@@ -141,6 +141,7 @@ const AllocateSubject = () => {
     }
     return (
         <div>
+            <hr/>
             <Row>
                 <Col md="6" xs="12">
                     <Row>

@@ -284,13 +284,11 @@ export class StudentForm extends Component {
             <div>
                 <hr />
                 <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>First Name</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.firstName}
@@ -300,16 +298,11 @@ export class StudentForm extends Component {
                             </Col>
                         </Row>
                     </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Last Name</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.lastName}
@@ -322,13 +315,11 @@ export class StudentForm extends Component {
                 </Row>
                 <br />
                 <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Contact Person</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.contactPerson}
@@ -338,16 +329,11 @@ export class StudentForm extends Component {
                             </Col>
                         </Row>
                     </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Contact Number</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.contactNumber}
@@ -360,30 +346,10 @@ export class StudentForm extends Component {
                 </Row>
                 <br />
                 <Row>
-                    <Col md="6" xs="12">
-                        <Row>
-                            <Col md="4" xs="12">
-                                <Label>Email Address</Label>
-
-                            </Col>
-
-                            <Col md="8" xs="12">
-                                <Input
-                                    value={this.state.email}
-                                    name="email"
-                                    onChange={this.HandleChange}
-                                />
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Date of Birth</Label>
-
                             </Col>
                             <Col md="8" xs="12">
                                 <Input
@@ -395,16 +361,29 @@ export class StudentForm extends Component {
                             </Col>
                         </Row>
                     </Col>
+                    <Col md="5" xs="12">
+                        <Row>
+                            <Col md="4" xs="12">
+                                <Label>Email Address</Label>
+                            </Col>
+                            <Col md="8" xs="12">
+                                <Input
+                                    type="email"
+                                    value={this.state.email}
+                                    name="email"
+                                    onChange={this.CalculateAge}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
                 </Row>
                 <br />
                 <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Age</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <Input
                                     value={this.state.age}
@@ -413,16 +392,11 @@ export class StudentForm extends Component {
                             </Col>
                         </Row>
                     </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col md="6" xs="12">
+                    <Col md="5" xs="12">
                         <Row>
                             <Col md="4" xs="12">
                                 <Label>Class</Label>
-
                             </Col>
-
                             <Col md="8" xs="12">
                                 <select className="customSelect" onChange={this.HandleChange}
                                     name="classId" value={this.state.classId}>
@@ -436,7 +410,6 @@ export class StudentForm extends Component {
                     </Col>
                 </Row>
                 <br />
-
                 <Row>
                     <Col md="6" xs="12">
                         <Row>

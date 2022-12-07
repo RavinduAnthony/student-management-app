@@ -4,7 +4,12 @@ export function TeacherGrid(props){
         <div>
             <Table bordered>
                 <thead>
-                    <tr>Teachers</tr>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Contact No</th>
+                        <th>Email</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {props.teacherData.map(tch =>

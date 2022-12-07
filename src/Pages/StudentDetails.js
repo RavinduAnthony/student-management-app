@@ -67,11 +67,6 @@ const StudentDetails = () => {
     }
     return (
         <div>
-            <br />
-            <Col md="4" xs="12">
-                <Label>Student Details</Label>
-
-            </Col>
             <hr />
             <br />
             <Row>

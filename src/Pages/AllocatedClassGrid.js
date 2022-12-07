@@ -4,7 +4,10 @@ const AllocatedClassGrid = (props) =>{
         <div>
             <Table bordered>
                 <thead>
-                    <tr>Class Room</tr>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Class Room</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {props.allocClassData.map(cls =>

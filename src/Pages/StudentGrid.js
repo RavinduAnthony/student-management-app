@@ -4,7 +4,14 @@ export function StudentGrid(props){
         <div>
             <Table bordered>
                 <thead>
-                    <tr>Students</tr>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Contact Person</th>
+                        <th>Contact No</th>
+                        <th>Email Address</th>
+                        <th>Date of Birth</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {props.studentData.map(std =>

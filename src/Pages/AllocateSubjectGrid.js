@@ -3,7 +3,10 @@ const AllocateSubjectGrid = (props) => {
     return(
         <Table bordered>
                 <thead>
-                    <tr>Subject</tr>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Subject</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {props.allocSubjectData.map(subj =>

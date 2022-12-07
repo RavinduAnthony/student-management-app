@@ -104,7 +104,7 @@ class ClassForm extends Component {
             })
     }
     saveClass() {
-        const isExist = this.state.classRooms.map(item => {
+        const isExist = this.state.classRooms.some(item => {
             var newClass = this.state.className.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
             var existingClass = item.classRoomName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
             if (existingClass === newClass) {
@@ -123,7 +123,7 @@ class ClassForm extends Component {
                 }
             })
         } else {
-            if (this.state.classID === 0 && !isExist) {
+            if (this.state.classID === 0 && isExist) {
                 this.setState({
                     alertBoxObj: {
                         status: true,

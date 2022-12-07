@@ -194,6 +194,7 @@ export class SubjectForm extends Component {
     render() {
         return (
             <div>
+                <hr/>
                 <Row>
                     <Col md="6" xs="12">
                         <Row>
