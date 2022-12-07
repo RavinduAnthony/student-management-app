@@ -211,11 +211,18 @@ class ClassForm extends Component {
 
                             </Col>
 
-                            <Col md="8" xs="12">
+                            <Col md="2" xs="12">
                                 <Button outline color="success"
                                     onClick={() => { this.saveClass() }}
                                 >
                                     Save
+                                </Button>
+                            </Col>
+                            <Col md="2" xs="12">
+                                <Button outline color="secondary"
+                                    onClick={() => { window.location.reload() }}
+                                >
+                                    Refresh
                                 </Button>
                             </Col>
                         </Row>

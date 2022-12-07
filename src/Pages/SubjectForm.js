@@ -180,15 +180,15 @@ export class SubjectForm extends Component {
         })
     }
 
-    HandleChange(e){
-        this.setState({ 
+    HandleChange(e) {
+        this.setState({
             subjectName: e.target.value,
             alertBoxObj: {
                 status: false,
                 message: "",
                 color: "success",
                 toggleAlert: () => { }
-            } 
+            }
         })
     }
     render() {
@@ -220,11 +220,18 @@ export class SubjectForm extends Component {
 
                             </Col>
 
-                            <Col md="8" xs="12">
+                            <Col md="2" xs="12">
                                 <Button outline color="success"
                                     onClick={() => { this.SaveSubject() }}
                                 >
                                     Save
+                                </Button>
+                            </Col>
+                            <Col md="2" xs="12">
+                                <Button outline color="secondary"
+                                    onClick={() => { window.location.reload() }}
+                                >
+                                    Refresh
                                 </Button>
                             </Col>
                         </Row>

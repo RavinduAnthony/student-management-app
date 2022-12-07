@@ -278,7 +278,7 @@ export class StudentForm extends Component {
         var age = Math.floor((difference / (1000 * 60 * 60 * 24)) / 365)
         this.setState({ age: age })
     }
-    
+
     render() {
         return (
             <div>
@@ -444,11 +444,18 @@ export class StudentForm extends Component {
 
                             </Col>
 
-                            <Col md="8" xs="12">
+                            <Col md="2" xs="12">
                                 <Button outline color="success"
                                     onClick={() => { this.SaveStudent() }}
                                 >
                                     Save
+                                </Button>
+                            </Col>
+                            <Col md="2" xs="12">
+                                <Button outline color="secondary"
+                                    onClick={() => { window.location.reload() }}
+                                >
+                                    Refresh
                                 </Button>
                             </Col>
                         </Row>

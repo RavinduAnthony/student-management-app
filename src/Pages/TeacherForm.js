@@ -42,7 +42,7 @@ export class TeacherForm extends Component {
             })
         });
     }
-    
+
     LoadTeacherList(callback) {
         axios.get(`https://localhost:44319/Teacher/GetAllTeachers`)
             .then(response => {
@@ -60,7 +60,7 @@ export class TeacherForm extends Component {
                 callback(true);
             })
     }
-    
+
     GetTeacherById(teacherId) {
         axios.get(`https://localhost:44319/Teacher/GetTeacherByID?TeacherId=` + teacherId)
             .then(response => {
@@ -86,7 +86,7 @@ export class TeacherForm extends Component {
 
             })
     }
-    
+
     DeleteTeacher(teacherId) {
         axios.post(`https://localhost:44319/Teacher/DeleteTeacher?TeacherId=` + teacherId)
             .then(response => {
@@ -112,7 +112,7 @@ export class TeacherForm extends Component {
                 });
             })
     }
-    
+
     SaveTeacher() {
         const teacherAvailability = this.state.teacherList.some(tch => {
             if (tch.email === this.state.email || tch.contactNo === this.state.conNumber) {
@@ -207,7 +207,7 @@ export class TeacherForm extends Component {
             email: ""
         })
     }
-    
+
     toggleAlert() {
         this.setState({
             alertBoxObj: {
@@ -218,7 +218,7 @@ export class TeacherForm extends Component {
             }
         })
     }
-    
+
     HandleChange(e) {
         this.setState({
             [e.target.name]: e.target.value,
@@ -318,11 +318,18 @@ export class TeacherForm extends Component {
 
                             </Col>
 
-                            <Col md="8" xs="12">
+                            <Col md="2" xs="12">
                                 <Button outline color="success"
                                     onClick={() => { this.SaveTeacher() }}
                                 >
                                     Save
+                                </Button>
+                            </Col>
+                            <Col md="2" xs="12">
+                                <Button outline color="secondary"
+                                    onClick={() => { window.location.reload() }}
+                                >
+                                    Refresh
                                 </Button>
                             </Col>
                         </Row>

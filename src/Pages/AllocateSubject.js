@@ -85,16 +85,16 @@ const AllocateSubject = () => {
     }
 
     const DeAllocateSubject = (allocatedId, teacherId) => {
-        axios.post(`https://localhost:44319/SubjectAllocation/DeAllocateSubject?allocatedSubjectId=`+allocatedId)
-        .then(response => {
-            setAlertBoxObj({
-                status: true,
-                message: response.data,
-                color: "successAlert",
-                toggleAlert: toggleAlert
+        axios.post(`https://localhost:44319/SubjectAllocation/DeAllocateSubject?allocatedSubjectId=` + allocatedId)
+            .then(response => {
+                setAlertBoxObj({
+                    status: true,
+                    message: response.data,
+                    color: "successAlert",
+                    toggleAlert: toggleAlert
+                })
+                GetAllocatedSubjectList(teacherId)
             })
-            GetAllocatedSubjectList(teacherId)
-        })
     }
     const HandleTeacherChange = (e) => {
         setInitialTeacher(initialTeacher + 1)
@@ -192,11 +192,18 @@ const AllocateSubject = () => {
 
                         </Col>
 
-                        <Col md="8" xs="12">
+                        <Col md="2" xs="12">
                             <Button outline color="success"
                                 onClick={() => { AlocateSubject() }}
                             >
                                 Allocate
+                            </Button>
+                        </Col>
+                        <Col md="2" xs="12">
+                            <Button outline color="secondary"
+                                onClick={() => { window.location.reload() }}
+                            >
+                                Refresh
                             </Button>
                         </Col>
                     </Row>
