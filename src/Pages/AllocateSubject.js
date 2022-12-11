@@ -14,6 +14,7 @@ const AllocateSubject = () => {
     const [subjectId, setSubjectId] = useState(0)
     const [gridKey, setGridKey] = useState(1);
     const [allocSubjects, setAllocSubjects] = useState([])
+    const [allAllocations, setAllAllocations] = useState([])
     const [initialTeacher, setInitialTeacher] = useState(0)
     const [initialSubject, setInitialSubject] = useState(0)
     const [alertBoxObj, setAlertBoxObj] = useState({
@@ -68,8 +69,28 @@ const AllocateSubject = () => {
         HideLoader()
     }
 
+    const GetAllAllocations = () => {
+        axios.get(`${API_KEY}SubjectAllocation/GetAllocatedSubjectsById?TeacherId=${0}`)
+            .then(response => {
+                ShowLoader()
+                setAllAllocations(
+                    response.data.map(item => {
+                        return {
+                            allocatedId: item.allocatedId,
+                            subjectName: item.subjectName,
+                            teacherName: item.teacherName,
+                            teacherId: item.teacherId,
+                            subjectID: item.subjectID
+                        }
+                    })
+                )
+                HideLoader()
+            })
+    }
+
     useEffect(() => {
         GetInitialData();
+        GetAllAllocations();
     }, [])
 
     useEffect(() => {
@@ -78,32 +99,12 @@ const AllocateSubject = () => {
 
     const AlocateSubject = () => {
         var teacher = parseInt(teacherId)
-        var subject = parseInt(subjectId)
-        const isAllocated = allocSubjects.some(item => {
-            if (item.subjectID === subject && item.teacherId === teacher) {
-                return true;
-            } else {
-                return false;
-            }
-        })
-        if (isAllocated) {
+
+        var isValid = ValidateFields()
+        if (!isValid.isValid) {
             setAlertBoxObj({
                 status: true,
-                message: "Subject already allocated to Teacher!",
-                color: "dangerAlert",
-                toggleAlert: toggleAlert
-            })
-        } else if (subjectId === 0) {
-            setAlertBoxObj({
-                status: true,
-                message: "Please select a Subject!",
-                color: "warningAlert",
-                toggleAlert: toggleAlert
-            })
-        } else if (teacherId === 0) {
-            setAlertBoxObj({
-                status: true,
-                message: "Please select a Teacher!",
+                message: isValid.errorMessage,
                 color: "warningAlert",
                 toggleAlert: toggleAlert
             })
@@ -124,6 +125,31 @@ const AllocateSubject = () => {
 
     }
 
+    const ValidateFields = () => {
+
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
+        }
+
+        allAllocations.some(item => {
+            if (item.subjectID === parseInt(subjectId)) {
+                validObj.isValid = false;
+                validObj.errorMessage = "Subject already allocated to Teacher!"
+            }
+        })
+
+        if (teacherId === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please select a Teacher!"
+        } else if (subjectId === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please select a Subject!"
+        }
+
+        return validObj;
+    }
+    
     const DeAllocateSubject = (allocatedId, teacherId) => {
         axios.post(`${API_KEY}SubjectAllocation/DeAllocateSubject?allocatedSubjectId=${allocatedId}`)
             .then(response => {
@@ -183,6 +209,7 @@ const AllocateSubject = () => {
                 )
                 HideLoader()
                 setGridKey(gridKey + 1)
+                GetAllAllocations()
             })
     }
 
@@ -191,6 +218,7 @@ const AllocateSubject = () => {
         window.location.reload()
         HideLoader()
     }
+
     return (
         <div>
             <hr />

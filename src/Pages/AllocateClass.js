@@ -52,7 +52,7 @@ const AllocateClass = () => {
                     })
                 )
             })
-           // HideLoader()
+        // HideLoader()
         axios.get(`${API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 setClassRooms(
@@ -136,12 +136,12 @@ const AllocateClass = () => {
             }
         })
 
-        if (classId === 0) {
-            validObj.isValid = false;
-            validObj.errorMessage = "Please select a Class!";
-        } else if (teacherId === 0) {
+        if (teacherId === 0) {
             validObj.isValid = false;
             validObj.errorMessage = "Please select a Teacher!";
+        } else if (classId === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please select a Class!";
         }
 
         return validObj;

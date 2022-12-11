@@ -4,6 +4,7 @@ import { Row, Col, Input, Label, Button } from "reactstrap";
 import StudentDetailGrid from "./StudentDetailGrid";
 import JsPDF from 'jspdf';
 import html2canvas from "html2canvas";
+
 const StudentDetails = () => {
     const [studentList, setStudentList] = useState([])
     const [gridDetails, setGridDetails] = useState([])
