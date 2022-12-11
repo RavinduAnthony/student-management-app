@@ -31,11 +31,7 @@ export class SubjectForm extends Component {
 
     }
     componentDidMount() {
-        this.LoadSubjectList(() => {
-            this.setState({
-                gridKey: this.state.gridKey + 1
-            })
-        });
+        this.LoadSubjectsToGrid()
     }
 
     LoadSubjectList(callback) {
@@ -55,7 +51,7 @@ export class SubjectForm extends Component {
     }
 
     GetSubjectById(sbjId) {
-        axios.get(`${process.env.REACT_APP_API_KEY}Subject/GetSubjectById?SubjectId=` + sbjId)
+        axios.get(`${process.env.REACT_APP_API_KEY}Subject/GetSubjectById?SubjectId=${sbjId}`)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -107,79 +103,73 @@ export class SubjectForm extends Component {
     }
 
     SaveSubject() {
-        const subjectAvailability = this.state.subjects.some(item => {
-            var newSubject = this.state.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
-            var existingSubject = item.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
-            if (existingSubject === newSubject) {
-                return true;
-            } else {
-                return false;
-            }
-        })
+
         var isValid = this.ValidateFields();
-        if (!isValid) {
+        if (!isValid.isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please provide Subject Name!!",
+                    message: isValid.errorMessage,
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (subjectAvailability) {
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: "Subject already exists!",
-                        color: "dangerAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-            } else {
-                axios.post(`${process.env.REACT_APP_API_KEY}Subject/SaveSubject`, {
-                    subjectId: parseInt(this.state.subjectID),
-                    subjectName: this.state.subjectName
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "successAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    else {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "dangerAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    
-                    this.LoadSubjectsToGrid();
-                })
-            }
-            this.setInitialState();
+            axios.post(`${process.env.REACT_APP_API_KEY}Subject/SaveSubject`, {
+                subjectId: parseInt(this.state.subjectID),
+                subjectName: this.state.subjectName
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+                else {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+
+                this.LoadSubjectsToGrid();
+            })
         }
+        this.setInitialState();
 
     }
 
     ValidateFields() {
-        var isValid = true;
-        if (this.state.subjectName.length === 0) {
-            isValid = false;
-            return isValid;
-        } else {
-            return isValid;
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
         }
+
+        if (this.state.subjectName.length === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide Subject Name!!"
+        }
+
+        let exist = this.state.subjects.find(x => x.subjectId != this.state.subjectID &&
+            x.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '') ==
+            this.state.subjectName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, ''));
+
+        if (exist != null) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Subject already exists!";
+        }
+
+        return validObj;
     }
-   
+
     LoadSubjectsToGrid() {
         this.LoadSubjectList(() => {
             debugger;
@@ -188,7 +178,7 @@ export class SubjectForm extends Component {
             })
         });
     }
-    
+
     setInitialState() {
         this.setState({
             subjectName: "",
@@ -218,6 +208,7 @@ export class SubjectForm extends Component {
             }
         })
     }
+
     render() {
         return (
             <div>

@@ -38,11 +38,7 @@ export class TeacherForm extends Component {
     }
 
     componentDidMount() {
-        this.LoadTeacherList(() => {
-            this.setState({
-                gridKey: this.state.gridKey + 1
-            })
-        });
+        this.LoadTeachersToGrid()
     }
 
     LoadTeacherList(callback) {
@@ -120,86 +116,51 @@ export class TeacherForm extends Component {
     }
 
     SaveTeacher() {
-        var isExist = "";
-        if (this.state.teacherId > 0) {
-            let newArr = this.state.teacherList.filter(std => std.teacherId !== this.state.teacherId)
-            newArr.some(newTch => {
-                if (newTch.email === this.state.email || newTch.contactNo === this.state.conNumber) {
-                    return isExist ="Not allowed to duplicate teachers!";
-                    //alert("Exists")
-                } else {
-                    return isExist;
-                    //alert("Good")
-                }
-            })
-        } else {
-            this.state.teacherList.some(tch => {
-                if (tch.email === this.state.email || tch.contactNo === this.state.conNumber) {
-                    return isExist = "Teacher already Exists!";
-                } else {
-                    return isExist;
-                }
-            })
-
-        }
+        
         var isValid = this.ValidateFields();
 
-        if (isValid.length > 0) {
+        if (!isValid.isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: isValid,
+                    message: isValid.errorMessage,
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
+            axios.post(`${process.env.REACT_APP_API_KEY}Teacher/SaveTeacher`, {
+                teacherId: parseInt(this.state.teacherId),
+                teacherFirstName: this.state.firstName,
+                teacherLastName: this.state.lastName,
+                contactNo: this.state.conNumber,
+                email: this.state.email
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+                else {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
 
-            if (isExist.length > 0) {
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: isExist,
-                        color: "dangerAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-
-            } else {
-                axios.post(`${process.env.REACT_APP_API_KEY}Teacher/SaveTeacher`, {
-                    teacherId: parseInt(this.state.teacherId),
-                    teacherFirstName: this.state.firstName,
-                    teacherLastName: this.state.lastName,
-                    contactNo: this.state.conNumber,
-                    email: this.state.email
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "successAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    else {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "dangerAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-
-                    this.LoadTeachersToGrid();
-                })
-
-            }
-            this.SetInitialState()
+                this.LoadTeachersToGrid();
+            })
         }
+        this.SetInitialState()
 
     }
 
@@ -213,19 +174,42 @@ export class TeacherForm extends Component {
     }
 
     ValidateFields() {
-        var isValid = ""
+
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
+        }
 
         if (this.state.firstName.length === 0 || this.state.lastName.length === 0 ||
             this.state.conNumber.length === 0 || this.state.email.length === 0) {
-            return isValid = "Please provide All the Fields!!";
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide All the Fields!!";
         } else if (this.state.conNumber.length > 10 || this.state.conNumber.length < 10) {
-            return isValid = "PLease Privide a Valid Phone Number!";
+            validObj.isValid = false;
+            validObj.errorMessage = "PLease Privide a Valid Phone Number!";
         } else if (!validator.isEmail(this.state.email)) {
-            return isValid = "Please provide a valid Email!!";
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide a valid Email!!";
         }
-        else {
-            return isValid;
+
+        if (this.state.teacherId > 0) {
+            let newArr = this.state.teacherList.filter(std => std.teacherId !== this.state.teacherId)
+            newArr.some(newTch => {
+                if (newTch.email === this.state.email || newTch.contactNo === this.state.conNumber) {
+                    validObj.isValid = false;
+                    validObj.errorMessage = "Not allowed to duplicate teachers!";
+                }
+            })
+        } else {
+            this.state.teacherList.some(tch => {
+                if (tch.email === this.state.email || tch.contactNo === this.state.conNumber) {
+                    validObj.isValid = false;
+                    validObj.errorMessage = "Teacher already Exists!";
+                }
+            })
+
         }
+        return validObj;
     }
 
     SetInitialState() {
@@ -260,6 +244,7 @@ export class TeacherForm extends Component {
             }
         })
     }
+
     render() {
         return (
             <div>

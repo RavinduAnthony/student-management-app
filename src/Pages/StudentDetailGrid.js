@@ -5,16 +5,16 @@ const StudentDetailGrid = (props) => {
         <Table bordered>
             <thead>
                 <tr>
-                    <th>Subject</th>
                     <th>Teacher</th>
+                    <th>Subject</th>
                 </tr>
             </thead>
             <tbody>
 
                 {props.studentData.map(item =>
                     <tr>
-                        <td>{item.stSubjectName}</td>
                         <td>{item.stTeacherName}</td>
+                        <td>{item.stSubjectName}</td>
                     </tr>
 
                 )}

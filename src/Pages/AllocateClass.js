@@ -24,7 +24,7 @@ const AllocateClass = () => {
         toggleAlert: () => { }
     })
     const API_KEY = process.env.REACT_APP_API_KEY;
-    const [loader,ShowLoader,HideLoader] = usePageLoader()
+    const [loader, ShowLoader, HideLoader] = usePageLoader()
 
     const toggleAlert = () => {
         setAlertBoxObj({
@@ -39,7 +39,7 @@ const AllocateClass = () => {
     const getInitialData = () => {
         axios.get(`${API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
-                ShowLoader()
+                //ShowLoader()
                 setTeachers(
                     response.data.map(item => {
                         return {
@@ -52,6 +52,7 @@ const AllocateClass = () => {
                     })
                 )
             })
+           // HideLoader()
         axios.get(`${API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 setClassRooms(
@@ -62,9 +63,8 @@ const AllocateClass = () => {
                         }
                     })
                 )
-                HideLoader()
             })
-        
+
         GetAllAllocations()
     }
 
@@ -96,34 +96,12 @@ const AllocateClass = () => {
 
     const AllocateClass = () => {
         var teacher = parseInt(teacherId)
-        var classRoom = parseInt(classId)
 
-        const isAllocated = allocClasses.some(item => {
-            if (item.teacherId === teacher && item.classId === classRoom) {
-                return true;
-            } else {
-                return false;
-            }
-        })
-
-        if (isAllocated) {
+        var isValid = ValidateFields();
+        if (!isValid.isValid) {
             setAlertBoxObj({
                 status: true,
-                message: "Class already allocated to Teacher!",
-                color: "dangerAlert",
-                toggleAlert: toggleAlert
-            })
-        } else if (classId === 0) {
-            setAlertBoxObj({
-                status: true,
-                message: "Please select a Class!",
-                color: "warningAlert",
-                toggleAlert: toggleAlert
-            })
-        } else if (teacherId === 0) {
-            setAlertBoxObj({
-                status: true,
-                message: "Please select a Teacher!",
+                message: isValid.errorMessage,
                 color: "warningAlert",
                 toggleAlert: toggleAlert
             })
@@ -142,6 +120,31 @@ const AllocateClass = () => {
             })
         }
 
+    }
+
+    const ValidateFields = () => {
+
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
+        }
+
+        allocClasses.some(item => {
+            if (item.teacherId === parseInt(teacherId) && item.classId === parseInt(classId)) {
+                validObj.isValid = false;
+                validObj.errorMessage = "Class already allocated to Teacher!"
+            }
+        })
+
+        if (classId === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please select a Class!";
+        } else if (teacherId === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please select a Teacher!";
+        }
+
+        return validObj;
     }
 
     const HandleTeacherChange = (e) => {
@@ -289,6 +292,7 @@ const AllocateClass = () => {
                 allocClassData={allocClasses}
                 deAllocateClass={DeAllocateClass}
             />
+            {loader}
         </div>
     )
 }

@@ -46,11 +46,7 @@ export class StudentForm extends Component {
     }
 
     componentDidMount() {
-        this.LoadStudentList(() => {
-            this.setState({
-                gridKey: this.state.gridKey + 1
-            })
-        })
+        this.LoadStudentsToGrid()
     }
 
     LoadStudentList(callback) {
@@ -147,102 +143,96 @@ export class StudentForm extends Component {
     }
 
     SaveStudent() {
-        var isExist = "";
-        if (this.state.studentId > 0) {
-            let newArr = this.state.studentList.filter(std => std.studentId !== this.state.studentId)
-            newArr.some(newStd => {
-                if (newStd.email === this.state.email || newStd.contactNo === this.state.contactNumber) {
-                    return isExist ="Not allowed to duplicate students!";
-                } else {
-                    return isExist;
-                }
-            })
-        } else {
-            this.state.studentList.some(std => {
-                if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
-                    return isExist = "Student already Exists!";
-                } else {
-                    return isExist;
-                }
-            })
-
-        }
 
         var isValid = this.ValidateFields();
-        if (isValid.length > 0) {
+        if (!isValid.isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: isValid,
+                    message: isValid.errorMessage,
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (isExist.length > 0) {
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: isExist,
-                        color: "dangerAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-            } else {
-                axios.post(`${process.env.REACT_APP_API_KEY}Student/SaveStudent`, {
-                    studentId: parseInt(this.state.studentId),
-                    firstName: this.state.firstName,
-                    lastName: this.state.lastName,
-                    contactPerson: this.state.contactPerson,
-                    contactNo: this.state.contactNumber,
-                    email: this.state.email,
-                    dateOfBirth: this.state.dob,
-                    st_classRoomId: parseInt(this.state.classId)
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "successAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    else {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "dangerAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    this.LoadStudentsToGrid();
-                })
-            }
-            this.SetInitialState()
+            axios.post(`${process.env.REACT_APP_API_KEY}Student/SaveStudent`, {
+                studentId: parseInt(this.state.studentId),
+                firstName: this.state.firstName,
+                lastName: this.state.lastName,
+                contactPerson: this.state.contactPerson,
+                contactNo: this.state.contactNumber,
+                email: this.state.email,
+                dateOfBirth: this.state.dob,
+                st_classRoomId: parseInt(this.state.classId)
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+                else {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+                this.LoadStudentsToGrid();
+            })
         }
+        this.SetInitialState()
     }
 
     ValidateFields() {
-        var isValid = "";
+
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
+        }
 
         if (this.state.firstName.length === 0 || this.state.lastName.length === 0 || this.state.contactNumber.length === 0
             || this.state.contactPerson.length === 0 || this.state.email.length === 0 || this.state.dob.length === 0
             || this.state.classId === 0) {
-            return isValid = "Please provide All the Fields!!";
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide All the Fields!!";
 
         } else if (this.state.contactNumber.length > 10 || this.state.contactNumber.length < 10) {
-            return isValid = "Please provide a valid Phone Number!!";
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide a valid Phone Number!!";
 
         } else if (!validator.isEmail(this.state.email)) {
-            return isValid = "Please provide a valid Email!!";
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide a valid Email!!";
 
-        } else {
-            return isValid;
         }
+
+        if (this.state.studentId > 0) {
+            let newArr = this.state.studentList.filter(std => std.studentId !== this.state.studentId)
+            newArr.some(newStd => {
+                if (newStd.email === this.state.email || newStd.contactNo === this.state.contactNumber) {
+                    validObj.isValid = false;
+                    validObj.errorMessage = "Not allowed to duplicate students!";
+                }
+            })
+        } else {
+            this.state.studentList.some(std => {
+                if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
+                    validObj.isValid = false;
+                    validObj.errorMessage = "Student already Exists!";
+                }
+            })
+
+        }
+
+        return validObj;
     }
 
     LoadStudentsToGrid() {
