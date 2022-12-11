@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Table } from 'reactstrap';
-export function ClassGrid(props){
+const ClassGrid = (props) => {
     const[classRooms, setClasRooms] = useState(props.classData)
     return(
         <div>
@@ -34,3 +34,5 @@ export function ClassGrid(props){
         </div>
     )
 }
+
+export default ClassGrid;

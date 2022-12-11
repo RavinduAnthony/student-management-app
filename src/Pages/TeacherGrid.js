@@ -1,5 +1,5 @@
 import { Button, Table } from 'reactstrap';
-export function TeacherGrid(props){
+const TeacherGrid = (props) => {
     return(
         <div>
             <Table bordered>
@@ -38,3 +38,5 @@ export function TeacherGrid(props){
         </div>
     )
 }
+
+export default TeacherGrid;

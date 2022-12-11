@@ -4,7 +4,7 @@ import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
 import AlertBox from "./AlertBox";
-import { SubjectGrid } from "./SubjectGrid"
+import SubjectGrid from "./SubjectGrid"
 
 export class SubjectForm extends Component {
     constructor(props) {
@@ -13,10 +13,6 @@ export class SubjectForm extends Component {
             subjectID: 0,
             subjectName: "",
             subjects: [],
-            isShowAlert: false,
-            alertMessage: "",
-            alertClassName: "",
-            isUpdating: false,
             gridKey: 1,
             alertBoxObj: {
                 status: false,
@@ -31,11 +27,11 @@ export class SubjectForm extends Component {
         this.toggleAlert = this.toggleAlert.bind(this);
         this.setInitialState = this.setInitialState.bind(this);
         this.HandleChange = this.HandleChange.bind(this);
+        this.LoadSubjectsToGrid = this.LoadSubjectsToGrid.bind(this);
 
     }
     componentDidMount() {
         this.LoadSubjectList(() => {
-            debugger;
             this.setState({
                 gridKey: this.state.gridKey + 1
             })
@@ -63,42 +59,50 @@ export class SubjectForm extends Component {
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
-                        this.setState({ subjectName: response.data[i].subjectName })
-                        this.setState({ subjectID: response.data[i].subjectId })
-                        this.setState({ isUpdating: true })
+                        this.setState({
+                            subjectName: response.data[i].subjectName,
+                            subjectID: response.data[i].subjectId
+                        })
                     }
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                    this.setState({ isShowAlert: true })
-                    this.setState({ alertMessage: "Not Found!" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
             })
     }
 
     DeleteSubject(sbjId) {
-        axios.post(`${process.env.REACT_APP_API_KEY}Subject/DeleteSubject?SubjectId=` + sbjId)
+        axios.post(`${process.env.REACT_APP_API_KEY}Subject/DeleteSubject?SubjectId=${sbjId}`)
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: response.data,
-                        color: "successAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-                this.LoadSubjectList(() => {
-                    debugger;
                     this.setState({
-                        gridKey: this.state.gridKey + 1
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
                     })
-                });
+                }
+
+                this.LoadSubjectsToGrid();
             })
     }
 
@@ -112,7 +116,8 @@ export class SubjectForm extends Component {
                 return false;
             }
         })
-        if (this.state.subjectName.length === 0) {
+        var isValid = this.ValidateFields();
+        if (!isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
@@ -122,7 +127,7 @@ export class SubjectForm extends Component {
                 }
             })
         } else {
-            if (this.state.subjectID === 0 && subjectAvailability) {
+            if (subjectAvailability) {
                 this.setState({
                     alertBoxObj: {
                         status: true,
@@ -137,24 +142,27 @@ export class SubjectForm extends Component {
                     subjectName: this.state.subjectName
                 }).then(response => {
                     if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
+                        this.setState({
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "successAlert",
+                                toggleAlert: this.toggleAlert
+                            }
+                        })
                     }
                     else {
-                        this.setState({ alertClassName: "danger" })
-                    }
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "successAlert",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                    this.LoadSubjectList(() => {
                         this.setState({
-                            gridKey: this.state.gridKey + 1
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "dangerAlert",
+                                toggleAlert: this.toggleAlert
+                            }
                         })
-                    });
+                    }
+                    
+                    this.LoadSubjectsToGrid();
                 })
             }
             this.setInitialState();
@@ -162,6 +170,25 @@ export class SubjectForm extends Component {
 
     }
 
+    ValidateFields() {
+        var isValid = true;
+        if (this.state.subjectName.length === 0) {
+            isValid = false;
+            return isValid;
+        } else {
+            return isValid;
+        }
+    }
+   
+    LoadSubjectsToGrid() {
+        this.LoadSubjectList(() => {
+            debugger;
+            this.setState({
+                gridKey: this.state.gridKey + 1
+            })
+        });
+    }
+    
     setInitialState() {
         this.setState({
             subjectName: "",
@@ -194,7 +221,7 @@ export class SubjectForm extends Component {
     render() {
         return (
             <div>
-                <hr/>
+                <hr />
                 <Row>
                     <Col md="6" xs="12">
                         <Row>
@@ -230,7 +257,7 @@ export class SubjectForm extends Component {
                             </Col>
                             <Col md="2" xs="12">
                                 <Button outline color="secondary"
-                                    onClick={() => { window.location.reload() }}
+                                    onClick={() => { this.setInitialState() }}
                                 >
                                     Refresh
                                 </Button>

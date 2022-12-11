@@ -4,7 +4,7 @@ import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
 import axios from "axios";
-import { ClassGrid } from "./ClassGrid";
+import  ClassGrid  from "./ClassGrid";
 
 class ClassForm extends Component {
     constructor(props) {
@@ -15,10 +15,6 @@ class ClassForm extends Component {
             className: "",
             gridKey: 1,
             classRooms: [],
-            isShowAlert: false,
-            alertMessage: "",
-            alertClassName: "",
-            isUpdating: false,
             alertBoxObj: {
                 status: false,
                 message: "",
@@ -32,11 +28,12 @@ class ClassForm extends Component {
         this.DeleteClassRoom = this.DeleteClassRoom.bind(this);
         this.toggleAlert = this.toggleAlert.bind(this);
         this.setInitialState = this.setInitialState.bind(this);
+        this.LoadClassRoomsToGrid = this.LoadClassRoomsToGrid.bind(this);
+        this.ValidateFields = this.ValidateFields.bind(this);
     }
-    
+
     componentDidMount() {
         this.loadClassRoomList(() => {
-            debugger;
             this.setState({
                 gridKey: this.state.gridKey + 1
             })
@@ -46,7 +43,6 @@ class ClassForm extends Component {
     loadClassRoomList(callback) {
         axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
-                debugger;
                 this.setState({
                     classRooms: response.data.map(item => {
                         return {
@@ -61,48 +57,57 @@ class ClassForm extends Component {
     }
 
     GetClassById(classRoomId) {
-        axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetClassRoomById?ClassId=` + classRoomId)
+        axios.get(`${process.env.REACT_APP_API_KEY}ClassRoom/GetClassRoomById?ClassId=${classRoomId}`)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
-                        this.setState({ className: response.data[i].classRoomName })
-                        this.setState({ classID: response.data[i].classRoomId })
-                        this.setState({ isUpdating: true })
+                        this.setState({
+                            className: response.data[i].classRoomName,
+                            classID: response.data[i].classRoomId
+                        })
                     }
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                    this.setState({ isShowAlert: true })
-                    this.setState({ alertMessage: "Not Found!" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: "Student Not Found!",
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
 
             })
     }
     DeleteClassRoom(classRoomId) {
-        axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=` + classRoomId)
+        axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=${classRoomId}`)
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: response.data,
-                        color: "successAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-                this.loadClassRoomList(() => {
-                    debugger;
                     this.setState({
-                        gridKey: this.state.gridKey + 1
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
                     })
-                });
+                }
+
+                this.LoadClassRoomsToGrid()
             })
     }
+
     saveClass() {
         const isExist = this.state.classRooms.some(item => {
             var newClass = this.state.className.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
@@ -113,17 +118,18 @@ class ClassForm extends Component {
                 return false;
             }
         })
-        if (this.state.className.length === 0) {
+        var isValid = this.ValidateFields();
+        if (!isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please provide Class Name!!",
+                    message: "Please Provide a Class!",
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (this.state.classID === 0 && isExist) {
+            if (isExist) {
                 this.setState({
                     alertBoxObj: {
                         status: true,
@@ -138,36 +144,57 @@ class ClassForm extends Component {
                     classRoomName: this.state.className
                 }).then(response => {
                     if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
+                        this.setState({
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "successAlert",
+                                toggleAlert: this.toggleAlert
+                            }
+                        })
                     }
                     else {
-                        this.setState({ alertClassName: "danger" })
-                    }
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "successAlert",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                    this.loadClassRoomList(() => {
-                        debugger;
                         this.setState({
-                            gridKey: this.state.gridKey + 1
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "dangerAlert",
+                                toggleAlert: this.toggleAlert
+                            }
                         })
-                    });
+                    }
+
+                    this.LoadClassRoomsToGrid()
                 })
             }
             this.setInitialState();
         }
     }
 
+    ValidateFields(){
+        var isValid = true;
+        
+        if (this.state.className.length === 0) {
+            isValid = false;
+            return isValid;
+        } else{
+            return isValid;
+        }
+    }
     setInitialState() {
         this.setState({
             className: "",
-            classID: 0
+            classID: 0,
         })
+    }
+
+    LoadClassRoomsToGrid() {
+        this.loadClassRoomList(() => {
+            debugger;
+            this.setState({
+                gridKey: this.state.gridKey + 1
+            })
+        });
     }
     toggleAlert() {
         this.setState({
@@ -220,7 +247,7 @@ class ClassForm extends Component {
                             </Col>
                             <Col md="2" xs="12">
                                 <Button outline color="secondary"
-                                    onClick={() => { window.location.reload() }}
+                                    onClick={() => { this.setInitialState() }}
                                 >
                                     Refresh
                                 </Button>

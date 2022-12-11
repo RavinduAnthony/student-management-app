@@ -1,8 +1,8 @@
 import { Component } from "react";
-import { StudentGrid } from "./StudentGrid";
+import StudentGrid from "./StudentGrid";
 import AlertBox from "./AlertBox";
 import validator from 'validator';
-import isEmail from 'validator/lib/isEmail';
+import usePageLoader from "./usePageLoader";
 import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
@@ -26,12 +26,6 @@ export class StudentForm extends Component {
             studentList: [],
             classList: [],
             gridKey: 1,
-            isShowAlert: false,
-            alertMessage: "",
-            alertClassName: "",
-            isUpdating: false,
-            isCalcAge: false,
-            isStudentValid: true,
             alertBoxObj: {
                 status: false,
                 message: "",
@@ -39,13 +33,16 @@ export class StudentForm extends Component {
                 toggleAlert: () => { }
             }
         }
-        this.HandleChange = this.HandleChange.bind(this)
-        this.LoadStudentList = this.LoadStudentList.bind(this)
-        this.toggleAlert = this.toggleAlert.bind(this)
-        this.DeleteStudent = this.DeleteStudent.bind(this)
-        this.GetStudentById = this.GetStudentById.bind(this)
-        this.CalculateAge = this.CalculateAge.bind(this)
-        this.SetInitialState = this.SetInitialState.bind(this)
+        this.HandleChange = this.HandleChange.bind(this);
+        this.LoadStudentList = this.LoadStudentList.bind(this);
+        this.toggleAlert = this.toggleAlert.bind(this);
+        this.DeleteStudent = this.DeleteStudent.bind(this);
+        this.GetStudentById = this.GetStudentById.bind(this);
+        this.CalculateAge = this.CalculateAge.bind(this);
+        this.DisplayAge = this.DisplayAge.bind(this);
+        this.SetInitialState = this.SetInitialState.bind(this);
+        this.ValidateFields = this.ValidateFields.bind(this);
+        this.LoadStudentsToGrid = this.LoadStudentsToGrid.bind(this);
     }
 
     componentDidMount() {
@@ -69,7 +66,8 @@ export class StudentForm extends Component {
                             contactNo: std.contactNo,
                             email: std.email,
                             dateOfBirth: std.dateOfBirth,
-                            st_classRoomId: std.classId
+                            st_classRoomId: std.classId,
+                            classRoomName: std.classRoomName
                         }
                     })
                 })
@@ -90,33 +88,34 @@ export class StudentForm extends Component {
     }
 
     DeleteStudent(studentId) {
-        axios.post(`${process.env.REACT_APP_API_KEY}Student/DeleteStudent?StudentId=` + studentId)
+        axios.post(`${process.env.REACT_APP_API_KEY}Student/DeleteStudent?StudentId=${studentId}`)
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ alertClassName: "primary" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                }
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: response.data,
-                        color: "successAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-                this.LoadStudentList(() => {
-                    debugger;
                     this.setState({
-                        gridKey: this.state.gridKey + 1
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
                     })
-                });
+                }
+                this.LoadStudentsToGrid();
             })
     }
 
     GetStudentById(studentId) {
-        axios.get(`${process.env.REACT_APP_API_KEY}Student/GetStudentById?StudentID=` + studentId)
+        axios.get(`${process.env.REACT_APP_API_KEY}Student/GetStudentById?StudentID=${studentId}`)
             .then(response => {
                 if (response.status === 200) {
                     for (let i = 0; i < response.data.length; i++) {
@@ -130,62 +129,61 @@ export class StudentForm extends Component {
                             dob: response.data[i].dateOfBirth,
                             classId: parseInt(response.data[i].st_classRoomId),
                             initialKey: this.state.initialKey + 1,
-                            isUpdating: true
                         })
+                        this.DisplayAge(response.data[i].dateOfBirth)
                     }
                 }
                 else {
-                    this.setState({ alertClassName: "danger" })
-                    this.setState({ isShowAlert: true })
-                    this.setState({ alertMessage: "Not Found!" })
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "warningAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
                 }
             })
     }
 
     SaveStudent() {
-        const studentAvailability = this.state.studentList.some(std => {
-            if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
-                return true;
-            } else {
-                return false;
-            }
-        })
+        var isExist = "";
+        if (this.state.studentId > 0) {
+            let newArr = this.state.studentList.filter(std => std.studentId !== this.state.studentId)
+            newArr.some(newStd => {
+                if (newStd.email === this.state.email || newStd.contactNo === this.state.contactNumber) {
+                    return isExist ="Not allowed to duplicate students!";
+                } else {
+                    return isExist;
+                }
+            })
+        } else {
+            this.state.studentList.some(std => {
+                if (std.email === this.state.email || std.contactNo === this.state.contactNumber) {
+                    return isExist = "Student already Exists!";
+                } else {
+                    return isExist;
+                }
+            })
 
-        if (this.state.firstName.length === 0 || this.state.lastName.length === 0 || this.state.contactNumber.length === 0
-            || this.state.contactPerson.length === 0 || this.state.email.length === 0 || this.state.dob.length === 0
-            || this.state.classId === 0) {
+        }
+
+        var isValid = this.ValidateFields();
+        if (isValid.length > 0) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please provide All the Fields!!",
-                    color: "warningAlert",
-                    toggleAlert: this.toggleAlert
-                }
-            })
-        } else if (this.state.contactNumber.length > 10 || this.state.contactNumber.length < 10) {
-            this.setState({
-                alertBoxObj: {
-                    status: true,
-                    message: "Please provide a valid Phone Number!!",
-                    color: "warningAlert",
-                    toggleAlert: this.toggleAlert
-                }
-            })
-        } else if (!validator.isEmail(this.state.email)) {
-            this.setState({
-                alertBoxObj: {
-                    status: true,
-                    message: "Please provide a valid Email!!",
+                    message: isValid,
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (this.state.studentId === 0 && studentAvailability) {
+            if (isExist.length > 0) {
                 this.setState({
                     alertBoxObj: {
                         status: true,
-                        message: "Student Already Exists!",
+                        message: isExist,
                         color: "dangerAlert",
                         toggleAlert: this.toggleAlert
                     }
@@ -202,7 +200,14 @@ export class StudentForm extends Component {
                     st_classRoomId: parseInt(this.state.classId)
                 }).then(response => {
                     if (response.status === 200) {
-                        this.setState({ alertClassName: "primary" })
+                        this.setState({
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "successAlert",
+                                toggleAlert: this.toggleAlert
+                            }
+                        })
                     }
                     else {
                         this.setState({
@@ -214,28 +219,44 @@ export class StudentForm extends Component {
                             }
                         })
                     }
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "successAlert",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                    this.LoadStudentList(() => {
-                        debugger;
-                        this.setState({
-                            gridKey: this.state.gridKey + 1
-                        })
-                    });
+                    this.LoadStudentsToGrid();
                 })
             }
             this.SetInitialState()
         }
     }
 
+    ValidateFields() {
+        var isValid = "";
+
+        if (this.state.firstName.length === 0 || this.state.lastName.length === 0 || this.state.contactNumber.length === 0
+            || this.state.contactPerson.length === 0 || this.state.email.length === 0 || this.state.dob.length === 0
+            || this.state.classId === 0) {
+            return isValid = "Please provide All the Fields!!";
+
+        } else if (this.state.contactNumber.length > 10 || this.state.contactNumber.length < 10) {
+            return isValid = "Please provide a valid Phone Number!!";
+
+        } else if (!validator.isEmail(this.state.email)) {
+            return isValid = "Please provide a valid Email!!";
+
+        } else {
+            return isValid;
+        }
+    }
+
+    LoadStudentsToGrid() {
+        this.LoadStudentList(() => {
+            debugger;
+            this.setState({
+                gridKey: this.state.gridKey + 1
+            })
+        });
+    }
+
     SetInitialState() {
         this.setState({
+            studentId: 0,
             firstName: "",
             lastName: "",
             contactPerson: "",
@@ -273,6 +294,14 @@ export class StudentForm extends Component {
     CalculateAge(event) {
         this.setState({ dob: event.target.value })
         var birthdate = new Date(event.target.value)
+        var currentDate = new Date()
+        var difference = Math.abs(currentDate - birthdate)
+        var age = Math.floor((difference / (1000 * 60 * 60 * 24)) / 365)
+        this.setState({ age: age })
+    }
+
+    DisplayAge(dob) {
+        var birthdate = new Date(dob)
         var currentDate = new Date()
         var difference = Math.abs(currentDate - birthdate)
         var age = Math.floor((difference / (1000 * 60 * 60 * 24)) / 365)
@@ -426,7 +455,7 @@ export class StudentForm extends Component {
                             </Col>
                             <Col md="2" xs="12">
                                 <Button outline color="secondary"
-                                    onClick={() => { window.location.reload() }}
+                                    onClick={() => { this.SetInitialState() }}
                                 >
                                     Refresh
                                 </Button>

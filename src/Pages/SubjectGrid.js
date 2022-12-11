@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Table } from 'reactstrap';
-export function SubjectGrid(props) {
+const SubjectGrid = (props) => {
     const [subjects, setSubject] = useState(props.subjectData);
     return (
         <div>
@@ -36,3 +36,5 @@ export function SubjectGrid(props) {
         </div>
     )
 }
+
+export default SubjectGrid;

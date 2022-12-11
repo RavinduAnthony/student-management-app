@@ -1,5 +1,5 @@
 import { Button, Table } from "reactstrap"
-export function StudentGrid(props){
+const StudentGrid = (props) => {
     return(
         <div>
             <Table bordered>
@@ -10,6 +10,7 @@ export function StudentGrid(props){
                         <th>Contact Person</th>
                         <th>Contact No</th>
                         <th>Email Address</th>
+                        <th>Class</th>
                         <th>Date of Birth</th>
                     </tr>
                 </thead>
@@ -21,6 +22,7 @@ export function StudentGrid(props){
                             <td>{std.contactPerson }</td>
                             <td>{std.contactNo }</td>
                             <td>{std.email }</td>
+                            <td>{std.classRoomName}</td>
                             <td>{std.dateOfBirth }</td>
                             <td>
                                 <Button outline color="info" id={std.studentId} 
@@ -42,3 +44,5 @@ export function StudentGrid(props){
         </div>
     )
 }
+
+export default StudentGrid;

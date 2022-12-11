@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 import { Row, Col, Label, Button } from "reactstrap";
 import AllocateSubjectGrid from "./AllocateSubjectGrid";
 import AlertBox from "./AlertBox";
+import usePageLoader from "./usePageLoader";
+import PageLoader from "./PageLoader";
 const AllocateSubject = () => {
 
     const [teachers, setTeachers] = useState([])
@@ -22,6 +24,8 @@ const AllocateSubject = () => {
     })
     const API_KEY = process.env.REACT_APP_API_KEY;
 
+    const [loader, ShowLoader, HideLoader] = usePageLoader()
+
     const toggleAlert = () => {
         setAlertBoxObj({
             alertBoxObj: {
@@ -34,6 +38,7 @@ const AllocateSubject = () => {
     }
 
     const GetInitialData = () => {
+        ShowLoader()
         axios.get(`${API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
                 setTeachers(
@@ -48,6 +53,7 @@ const AllocateSubject = () => {
                     })
                 )
             })
+
         axios.get(`${API_KEY}Subject/GetAllSubjects`)
             .then(response => {
                 setSubjects(
@@ -59,6 +65,7 @@ const AllocateSubject = () => {
                     })
                 )
             })
+        HideLoader()
     }
 
     useEffect(() => {
@@ -86,6 +93,20 @@ const AllocateSubject = () => {
                 color: "dangerAlert",
                 toggleAlert: toggleAlert
             })
+        } else if (subjectId === 0) {
+            setAlertBoxObj({
+                status: true,
+                message: "Please select a Subject!",
+                color: "warningAlert",
+                toggleAlert: toggleAlert
+            })
+        } else if (teacherId === 0) {
+            setAlertBoxObj({
+                status: true,
+                message: "Please select a Teacher!",
+                color: "warningAlert",
+                toggleAlert: toggleAlert
+            })
         } else {
             axios.post(`${API_KEY}SubjectAllocation/AllocateSubject`, {
                 teacherId: parseInt(teacherId),
@@ -104,8 +125,9 @@ const AllocateSubject = () => {
     }
 
     const DeAllocateSubject = (allocatedId, teacherId) => {
-        axios.post(`${API_KEY}SubjectAllocation/DeAllocateSubject?allocatedSubjectId=` + allocatedId)
+        axios.post(`${API_KEY}SubjectAllocation/DeAllocateSubject?allocatedSubjectId=${allocatedId}`)
             .then(response => {
+                ShowLoader()
                 setAlertBoxObj({
                     status: true,
                     message: response.data,
@@ -113,8 +135,10 @@ const AllocateSubject = () => {
                     toggleAlert: toggleAlert
                 })
                 GetAllocatedSubjectList(teacherId)
+                HideLoader()
             })
     }
+
     const HandleTeacherChange = (e) => {
         setInitialTeacher(initialTeacher + 1)
         setTeacherID(e.target.value)
@@ -143,8 +167,9 @@ const AllocateSubject = () => {
     }
 
     const GetAllocatedSubjectList = (teacherId) => {
-        axios.get(`${API_KEY}SubjectAllocation/GetAllocatedSubjectsById?TeacherId=` + teacherId)
+        axios.get(`${API_KEY}SubjectAllocation/GetAllocatedSubjectsById?TeacherId=${teacherId}`)
             .then(response => {
+                ShowLoader()
                 setAllocSubjects(
                     response.data.map(item => {
                         return {
@@ -156,8 +181,15 @@ const AllocateSubject = () => {
                         }
                     })
                 )
+                HideLoader()
                 setGridKey(gridKey + 1)
             })
+    }
+
+    const PageRefresh = () => {
+        ShowLoader()
+        window.location.reload()
+        HideLoader()
     }
     return (
         <div>
@@ -222,7 +254,7 @@ const AllocateSubject = () => {
                         </Col>
                         <Col md="2" xs="12">
                             <Button outline color="secondary"
-                                onClick={() => { window.location.reload() }}
+                                onClick={() => { PageRefresh() }}
                             >
                                 Refresh
                             </Button>
@@ -242,6 +274,7 @@ const AllocateSubject = () => {
                 allocSubjectData={allocSubjects}
                 DeAllocateSubject={DeAllocateSubject}
             />
+            {loader}
         </div>
     )
 }
