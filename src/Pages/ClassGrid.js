@@ -22,7 +22,7 @@ const ClassGrid = (props) => {
                             </td>
                             <td>
                                 <Button outline color="danger" id={cls.classRoomId} 
-                                    onClick = {() =>{props.DeleteMethod(cls.classRoomId)}}> 
+                                    onClick = {() =>{props.DeleteMethod(cls.classRoomId,cls.classRoomName)}}> 
                                     Delete
                                 </Button>
                             </td>

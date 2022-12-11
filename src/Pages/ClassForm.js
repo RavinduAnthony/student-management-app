@@ -15,6 +15,7 @@ class ClassForm extends Component {
             className: "",
             gridKey: 1,
             classRooms: [],
+            students: [],
             alertBoxObj: {
                 status: false,
                 message: "",
@@ -30,6 +31,7 @@ class ClassForm extends Component {
         this.setInitialState = this.setInitialState.bind(this);
         this.LoadClassRoomsToGrid = this.LoadClassRoomsToGrid.bind(this);
         this.ValidateFields = this.ValidateFields.bind(this);
+        this.StudentAvailability = this.StudentAvailability.bind(this);
     }
 
     componentDidMount() {
@@ -52,6 +54,25 @@ class ClassForm extends Component {
                     })
                 })
 
+                callback(true);
+            })
+        axios.get(`${process.env.REACT_APP_API_KEY}Student/GetAllStudents`)
+            .then(response => {
+                this.setState({
+                    students: response.data.map(std => {
+                        return {
+                            studentId: std.studentId,
+                            firstName: std.firstName,
+                            lastName: std.lastName,
+                            contactPerson: std.contactPerson,
+                            contactNo: std.contactNo,
+                            email: std.email,
+                            dateOfBirth: std.dateOfBirth,
+                            st_classRoomId: parseInt(std.classId),
+                            classRoomName: std.classRoomName
+                        }
+                    })
+                })
                 callback(true);
             })
     }
@@ -81,36 +102,50 @@ class ClassForm extends Component {
             })
     }
 
-    DeleteClassRoom(classRoomId) {
-        axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=${classRoomId}`)
-            .then(response => {
-                if (response.status === 200) {
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "successAlert",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                }
-                else {
-                    this.setState({
-                        alertBoxObj: {
-                            status: true,
-                            message: response.data,
-                            color: "dangerAlert",
-                            toggleAlert: this.toggleAlert
-                        }
-                    })
-                }
+    DeleteClassRoom(classRoomId,classRoomName) {
+        let isAvailable = this.StudentAvailability(classRoomName)
 
-                this.LoadClassRoomsToGrid()
+        if (!isAvailable.isValid) {
+            this.setState({
+                alertBoxObj: {
+                    status: true,
+                    message: isAvailable.errorMessage,
+                    color: "warningAlert",
+                    toggleAlert: this.toggleAlert
+                }
             })
+        } else {
+            axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=${classRoomId}`)
+                .then(response => {
+                    if (response.status === 200) {
+                        this.setState({
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "successAlert",
+                                toggleAlert: this.toggleAlert
+                            }
+                        })
+                    }
+                    else {
+                        this.setState({
+                            alertBoxObj: {
+                                status: true,
+                                message: response.data,
+                                color: "dangerAlert",
+                                toggleAlert: this.toggleAlert
+                            }
+                        })
+                    }
+
+                    this.LoadClassRoomsToGrid()
+                })
+        }
+
     }
 
     saveClass() {
-        
+
         var isValid = this.ValidateFields();
         if (!isValid.isValid) {
             this.setState({
@@ -155,7 +190,7 @@ class ClassForm extends Component {
     }
 
     ValidateFields() {
-        
+
         let validObj = {
             isValid: true,
             errorMessage: ""
@@ -180,6 +215,23 @@ class ClassForm extends Component {
         return validObj;
     }
 
+    StudentAvailability(classRoomName) {
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
+        }
+
+        let isAvailable = this.state.students.find(x => 
+            x.classRoomName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '') == 
+            classRoomName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, ''))
+
+        if (isAvailable != null) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Students already allocated to this Class!!"
+        }
+
+        return validObj;
+    }
     setInitialState() {
         this.setState({
             className: "",
