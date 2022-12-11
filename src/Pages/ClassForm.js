@@ -4,7 +4,7 @@ import {
     Row, Col, Label, Button, Input
 } from 'reactstrap';
 import axios from "axios";
-import  ClassGrid  from "./ClassGrid";
+import ClassGrid from "./ClassGrid";
 
 class ClassForm extends Component {
     constructor(props) {
@@ -80,6 +80,7 @@ class ClassForm extends Component {
 
             })
     }
+
     DeleteClassRoom(classRoomId) {
         axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/DeleteClassRoom?ClassId=${classRoomId}`)
             .then(response => {
@@ -109,78 +110,76 @@ class ClassForm extends Component {
     }
 
     saveClass() {
-        const isExist = this.state.classRooms.some(item => {
-            var newClass = this.state.className.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
-            var existingClass = item.classRoomName.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '')
-            if (existingClass === newClass) {
-                return true;
-            } else {
-                return false;
-            }
-        })
+        
         var isValid = this.ValidateFields();
-        if (!isValid) {
+        if (!isValid.isValid) {
             this.setState({
                 alertBoxObj: {
                     status: true,
-                    message: "Please Provide a Class!",
+                    message: isValid.errorMessage,
                     color: "warningAlert",
                     toggleAlert: this.toggleAlert
                 }
             })
         } else {
-            if (isExist) {
-                this.setState({
-                    alertBoxObj: {
-                        status: true,
-                        message: "Class Already Exists!!",
-                        color: "dangerAlert",
-                        toggleAlert: this.toggleAlert
-                    }
-                })
-            } else {
-                axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/SaveClassRoom`, {
-                    classRoomId: parseInt(this.state.classID),
-                    classRoomName: this.state.className
-                }).then(response => {
-                    if (response.status === 200) {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "successAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
-                    else {
-                        this.setState({
-                            alertBoxObj: {
-                                status: true,
-                                message: response.data,
-                                color: "dangerAlert",
-                                toggleAlert: this.toggleAlert
-                            }
-                        })
-                    }
+            axios.post(`${process.env.REACT_APP_API_KEY}ClassRoom/SaveClassRoom`, {
+                classRoomId: parseInt(this.state.classID),
+                classRoomName: this.state.className
+            }).then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "successAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
+                else {
+                    this.setState({
+                        alertBoxObj: {
+                            status: true,
+                            message: response.data,
+                            color: "dangerAlert",
+                            toggleAlert: this.toggleAlert
+                        }
+                    })
+                }
 
-                    this.LoadClassRoomsToGrid()
-                })
-            }
+                this.LoadClassRoomsToGrid()
+            })
+
             this.setInitialState();
         }
     }
 
-    ValidateFields(){
-        var isValid = true;
+    ValidateFields() {
         
-        if (this.state.className.length === 0) {
-            isValid = false;
-            return isValid;
-        } else{
-            return isValid;
+        let validObj = {
+            isValid: true,
+            errorMessage: ""
         }
+
+        if (this.state.className.length === 0) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Please provide a class";
+        }
+
+        let exist = this.state.classRooms.find(x => x.classRoomId != this.state.classID &&
+            x.classRoomName.
+                replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase().replace(/\s+/g, '') ==
+            this.state.className.replace(/[^a-zA-Z0-9 ]/g, "").
+                toLowerCase().replace(/\s+/g, ''));
+
+        if (exist != null) {
+            validObj.isValid = false;
+            validObj.errorMessage = "Class Already Exists!!";
+        }
+
+        return validObj;
     }
+
     setInitialState() {
         this.setState({
             className: "",
@@ -196,6 +195,7 @@ class ClassForm extends Component {
             })
         });
     }
+
     toggleAlert() {
         this.setState({
             alertBoxObj: {
