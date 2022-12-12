@@ -35,11 +35,7 @@ class ClassForm extends Component {
     }
 
     componentDidMount() {
-        this.loadClassRoomList(() => {
-            this.setState({
-                gridKey: this.state.gridKey + 1
-            })
-        });
+        this.LoadClassRoomsToGrid();
     }
 
     loadClassRoomList(callback) {
@@ -232,6 +228,7 @@ class ClassForm extends Component {
 
         return validObj;
     }
+
     setInitialState() {
         this.setState({
             className: "",

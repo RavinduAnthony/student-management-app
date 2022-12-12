@@ -39,7 +39,6 @@ const AllocateClass = () => {
     const getInitialData = () => {
         axios.get(`${API_KEY}Teacher/GetAllTeachers`)
             .then(response => {
-                //ShowLoader()
                 setTeachers(
                     response.data.map(item => {
                         return {
@@ -52,7 +51,6 @@ const AllocateClass = () => {
                     })
                 )
             })
-        // HideLoader()
         axios.get(`${API_KEY}ClassRoom/GetAllClassRooms`)
             .then(response => {
                 setClassRooms(
